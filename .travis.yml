@@ -8,10 +8,6 @@ branches:
     - master
     - build
 
-env:
-  global:
-    - COVERAGE=false
-
 matrix:
   include:
     - python: 3.6
