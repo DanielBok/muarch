@@ -1,6 +1,6 @@
-clone_depth: 50
+clone_depth: 2
 
-max_jobs: 1
+max_jobs: 2
 
 image: Visual Studio 2015
 
@@ -11,23 +11,19 @@ environment:
     PYPI_USERNAME: DannieBee
 
   matrix:
-    - PYTHON: C:\\Python36-x64
+    - CONDA: C:\Miniconda36-x64
       COVERAGE: "False"
       SDIST: ""
-    - PYTHON: C:\\Python37-x64
+    - CONDA: C:\Miniconda37-x64
       SDIST: "sdist"
       COVERAGE: "True"
-
-stack: Python %PYTHON%
 
 platform:
   - x64
 
-matrix:
-  fast_finish: true
-
 init:
-  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - SET PATH=%CONDA%;%CONDA%\\Scripts;%PATH%
+  - IF "%CONDA%" == "C:\Miniconda37-x64" SET PATH=%CONDA%\\Library\\bin;%CONDA%\\Library\\mingw-w64\\bin;%PATH%
   - python --version
 
 install:
@@ -40,15 +36,31 @@ install:
       https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
       Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
       throw "There are newer queued builds for this pull request, failing early." }
-  - pip install -r requirements.txt
-  - python setup.py build_ext --inplace
-  - python setup.py install
+  - conda config --set always_yes yes
+  - conda update conda --quiet
+  - conda config --prepend channels conda-forge
+  - conda config --append channels bashtage
+  - conda config --get channels
+  - > 
+    conda install 
+    arch 
+    copulae
+    cython
+    matplotlib
+    numpy=1.15
+    pandas
+    pytest
+    pytest-cov
+    scipy
+    statsmodels 
+    twine
+    wheel
 
 build_script:
-  - python setup.py %SDIST% bdist_wheel
+  - python setup.py build_ext --inplace
 
 test_script:
-  - pytest tests/
+  - pytest --no-cov tests/
 
 artifacts:
   - path: dist\*
@@ -63,6 +75,6 @@ deploy_script:
   - ps: |
       if ($env:APPVEYOR_REPO_TAG -eq "true") {
         ECHO "Starting wheel deployment"
-        twine upload --repository-url https://test.pypi.org/legacy/ -u $env:PYPI_USERNAME -p $env:PYPI_PASSWORD dist/*
+        twine upload -u $env:PYPI_USERNAME -p $env:PYPI_PASSWORD dist/*
         ECHO "Finished wheel deployment"
       }
