@@ -73,7 +73,7 @@ after_test:
 
 deploy_script:
   - ps: |
-      if ($env:APPVEYOR_REPO_TAG -eq "true") {
+      if ($env:appveyor_repo_tag -eq $true) {
         ECHO "Starting wheel deployment"
         twine upload -u $env:PYPI_USERNAME -p $env:PYPI_PASSWORD dist/*
         ECHO "Finished wheel deployment"
