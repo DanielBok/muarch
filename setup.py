@@ -84,7 +84,7 @@ def run_setup():
 
     install_requires = [
         'arch >=4.7',
-        'copulae >=2.0',
+        'copulae >=0.2.0',
         'numpy >= 1.15',
         'scipy >=1.1',
         'pandas >=0.23'
@@ -103,6 +103,7 @@ def run_setup():
         cmdclass=cmdclass,
         classifiers=[
             'Development Status :: 3 - Alpha',
+            'Intended Audience :: Education',
             'Intended Audience :: End Users/Desktop',
             'Intended Audience :: Financial and Insurance Industry',
             'Intended Audience :: Science/Research',
@@ -113,13 +114,13 @@ def run_setup():
             'Programming Language :: Python :: 3',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
-            'Topic :: Financial/Engineering',
-            'Topic :: Financial/Portfolio Allocation',
-            'Topic :: Scientific/Engineering'
+            'Topic :: Education',
+            'Topic :: Scientific/Engineering',
         ],
         install_requires=install_requires,
         setup_requires=setup_requires,
         python_requires='>=3.6',
+        include_package_data=True,
         zip_safe=False
     )
 

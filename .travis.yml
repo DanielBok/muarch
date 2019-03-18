@@ -1,0 +1,45 @@
+os: linux
+dist: xenial  # ubuntu 16.04
+
+language: python
+
+branches:
+  only:
+    - master
+    - build
+
+matrix:
+  include:
+    - python: 3.6
+      env:
+        - COVERAGE=false
+    - python: 3.7
+      env:
+        - COVERAGE=true
+
+install:
+  - pip install coveralls
+  - pip install -r requirements.txt
+  - python setup.py build_ext --inplace
+  - python setup.py install
+
+script:
+  - make test
+
+after_success:
+  - echo "Test succeeded"
+  - |
+    if [[ "$COVERAGE" = true ]]; then
+      echo "Uploading coverage report"
+      coveralls;
+    fi
+
+deploy:
+  - provider: pypi
+    user: DannieBee
+    password:
+      secure: dO67z40SvaE/Z0rss5ZS+il+u5hu8AUDMt6ej6bWbNQ4Dvtqn5vCCnC59rTY9zvYJ+xyLK/G7vtEgBzxCdkW0XZOKCK+OfogiUF2T3muslACFwIXefcK3IIskSrbYbx290uKOXkYExgtR5ySINkZBdYRO5totBeiOzuH6n/WtuyKdw79fQaAchPtj+16axjuyqZZZfiYIHyrpfCeTDNOm05yAeWFa5PAu81UcjlEFQKXVj2EyI0AkD3PKDoobhskUqSTtUYiCnVP4jtG7kV2ell1NXfJgUZ28f2RlPXAI3Im+xWpEE6cwVNIl83cQhHBIw4ximqt9yeNCTsb3lypcOKMeRILN6YO1l9wlNYngck8FoB9Y69wJEQQThMJoh/5hYBWTI5Jg5aV0VQsc0WwR8HkU2I/sMLrrlLbwaCbjVloy1K5uZuY9GSpMCJKSMjq7i6i8mOKq2nsRYP72zRdg0m1xcc+vXagXlkwiL5QWaW4d91805kHvKWT/K2fOZvXlE+duVCtdlQHueIiY9qRLpXDya/aH7ahIsxe8ZfZJCZA1FIRx4HholwTaN97MT1cd50WJ4ncwYJ+bJXL/mZGl4fSmcT9oMu6/2aNeLMJzYzDP8iDgx7Dx74+ikr6g+5WVLvUpwAKLd1odkT/Fy3TPL0VxXatKyPhgLjS4RP9sic=
+    distributions: "bdist_wheel"
+    skip_existing: true
+    on:
+      tags: true

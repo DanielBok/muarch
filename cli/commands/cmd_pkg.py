@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from typing import Iterable
 
 import click
 
@@ -13,15 +14,15 @@ def cli():
 
 
 @cli.command()
-@click.option('--no-clean', 'no_clean', is_flag=True, default=True, help='If enabled, does not remove previous builds')
-def build(no_clean):
+@click.option('--no-clean', 'no_clean', is_flag=True, default=False, help='If enabled, does not remove previous builds')
+@click.argument('dist', nargs=-1)
+def build(no_clean, dist):
     """Builds sdist and bdist wheel"""
     if not no_clean:
         status = _remove_build_dir()
         if status != 0:
             return status
-
-    return _build_package()
+    return _build_package(dist)
 
 
 @cli.command()
@@ -31,13 +32,15 @@ def clean():
 
 
 @cli.command()
-def cython():
-    shell_run("cython ")
+@click.option('--dev', 'dev', is_flag=True, default=False, help="Cythonize with development configs")
+def cython(dev):
+    """Builds the cython modules"""
+    shell_run("python setup.py build_ext --inplace", env={'DEV_BUILD': '1' if dev else '0'})
+    return 0
 
 
 @cli.command()
-@click.option('-u', '--user', 'user', default=None,
-              help='PYPI username. Defaults to value in .pypirc if available')
+@click.option('-u', '--user', 'user', default=None, help='PYPI username. Defaults to value in .pypirc if available')
 @click.option('-p', '--password', 'password', default=None,
               help='PYPI password. Defaults to value in .pypirc if available')
 @click.option('-b', '--build', 'build_', is_flag=True, default=False, help='If enabled, rebuilds package')
@@ -80,8 +83,22 @@ def upload(user, password, build_, verbose):
     return 0
 
 
-def _build_package():
-    shell_run("make dist", tty=True)
+def _build_package(dist: Iterable[str] = ()):
+    dist = tuple(dist)
+    if len(dist) == 0:
+        dist = 'sdist', 'bdist'
+
+    count = 0
+    for d in dist:
+        d = d.lower()
+        if d in ('dist', 'sdist'):
+            shell_run("make dist", tty=True)
+            count += 1
+        elif d in ('bdist', 'dist-wheel'):
+            shell_run("make dist-wheel", tty=True)
+            count += 1
+
+    echo(f"Completed building {style(count, 'green')} distributions")
     return 0
 
 

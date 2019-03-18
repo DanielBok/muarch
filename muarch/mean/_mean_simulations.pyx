@@ -8,20 +8,20 @@ cimport cython
 @cython.cdivision(True)
 def simulate_harx(
         double[:] y,
-        int nobs,
-        int k_x,
-        int max_lag,
+        long nobs,
+        long k_x,
+        long max_lag,
         bint constant,
         double[:, :] x,
         double[:] errors,
         double[:] params,
-        int[:, :] lags):
+        long[:, :] lags):
 
     cdef:
-        int t, i, j, ind
-        int lag_start, lag_end
+        long t, i, j, ind
+        long lag_start, lag_end
         double ar
-        int[:] lag
+        long[:] lag
 
     for t in range(max_lag, nobs):
         ind = 0
@@ -48,15 +48,15 @@ def simulate_harx(
 @cython.cdivision(True)
 def simulate_harx_mc(
         double[:, :] y,
-        int nobs,
-        int reps,
-        int k_x,
-        int max_lag,
+        long nobs,
+        long reps,
+        long k_x,
+        long max_lag,
         bint constant,
         double[:, :] x,
         double[:, :] errors,
         double[:] params,
-        int[:, :] lags):
+        long[:, :] lags):
 
     cdef double[:, :] data = _simulate_harx_mc(y, nobs, reps, k_x, max_lag, constant, x, errors, params, lags)
     return np.asarray(data, np.float64)
@@ -66,19 +66,19 @@ def simulate_harx_mc(
 @cython.cdivision(True)
 cdef double[:, :] _simulate_harx_mc(
     double[:, :] y,
-    int nobs,
-    int reps,
-    int k_x,
-    int max_lag,
+    long nobs,
+    long reps,
+    long k_x,
+    long max_lag,
     bint constant,
     double[:, :] x,
     double[:, :] errors,
     double[:] params,
-    int[:, :] lags
+    long[:, :] lags
 ):
     cdef:
-        int i, j, r, t, ind
-        int[:] lag
+        long i, j, r, t, ind
+        long[:] lag
         double ar
 
     for r in range(reps):

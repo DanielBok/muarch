@@ -1,7 +1,17 @@
+include MANIFEST.in
+include LICENSE
+include RELEASE.md
+include README.md
+include setup.py
+include versioneer.py
+include muarch/_version.py
+
+recursive-include muarch/datasets *.csv
+
 global-exclude *.py[co]
 global-exclude *.p
 
 exclude *scratch.py
-exclude docs/
 
+prune docs
 prune .pytest_cache

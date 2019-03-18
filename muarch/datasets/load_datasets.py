@@ -28,7 +28,7 @@ def load_etf(typ='returns') -> pd.DataFrame:
         DataFrame containing monthly price or returns data with the date as the index
     """
     fp = data_dir.joinpath('etf.csv')
-    df = pd.read_csv(fp, parse_dates=['Date'], index_col=0)
+    df = pd.read_csv(fp, sep=r'\s*,\s*', parse_dates=['Date'], engine='python', index_col=[0])
 
     if typ == 'price':
         return df
