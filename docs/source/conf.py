@@ -16,7 +16,6 @@ import glob
 import os
 import shutil
 import sys
-import subprocess
 
 sys.path.insert(0, os.path.abspath('../..'))
 
@@ -37,9 +36,9 @@ copyright = '2019, Daniel Bok'
 author = 'Daniel Bok'
 
 # The short X.Y version
-version = ''
+version = '0.0'
 # The full version, including alpha/beta/rc tags
-release = subprocess.check_output('git describe --dirty --always --tags').strip().decode('utf-8')
+release = '0.0.4'
 
 # -- General configuration ---------------------------------------------------
 

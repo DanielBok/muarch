@@ -1,6 +1,23 @@
 MUArch
 ======
 
+###### Continuous Integration
+
+[![Build Status](https://travis-ci.com/DanielBok/muarch.svg?branch=master)](https://travis-ci.com/DanielBok/muarch)
+[![Build status](https://ci.appveyor.com/api/projects/status/i6wylcc8syvdbkih?svg=true)](https://ci.appveyor.com/project/DanielBok/muarch)
+
+###### Documentation
+
+[![Documentation Status](https://readthedocs.org/projects/muarch/badge/?version=latest)](https://muarch.readthedocs.io/en/latest/?badge=latest)
+
+###### Coverage
+
+[![Coverage Status](https://coveralls.io/repos/github/DanielBok/muarch/badge.svg?branch=master)](https://coveralls.io/github/DanielBok/muarch?branch=master)
+
+## Installing
+
+Install and update using [pip](https://pip.pypa.io/en/stable/quickstart/) and on conda.
+
 This is a wrapper on top of Kevin Sheppard's [ARCH](https://github.com/bashtage/arch) package. The purpose of which are to:  
 
 1. Enable faster Monte Carlo simulation
