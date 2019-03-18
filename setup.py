@@ -31,6 +31,9 @@ PACKAGE_NAME = 'muarch'
 cmdclass = versioneer.get_cmdclass()
 cmdclass['build_ext'] = _build_cython_ext
 
+with open('readme.md') as f:
+    long_description = f.read()
+
 
 def build_ext_modules():
     macros = [('NPY_NO_DEPRECATED_API', '1'),
@@ -99,8 +102,10 @@ def run_setup():
         author_email='daniel.bok@outlook.com',
         packages=find_packages(include=['muarch', 'muarch.*']),
         ext_modules=ext_modules,
-        url='',
+        url='https://github.com/DanielBok/muarch',
         cmdclass=cmdclass,
+        long_description=long_description,
+        long_description_content_type='text/markdown',
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Intended Audience :: Education',

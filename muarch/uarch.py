@@ -446,9 +446,10 @@ class UArch(_ArchBase):
 
             If a random number generator function is passed in, he size will be automatically derived to save the user
             the trouble. However, the function must:
-                * take as it first argument an integer or a tuple of integer
-                * have other parameters that are optional
-                * return a numpy array
+
+            * take as it first argument an integer or a tuple of integer
+            * have other parameters that are optional
+            * return a numpy array
 
         Returns
         -------

@@ -1,0 +1,4 @@
+nbsphinx==0.4.2
+Sphinx==1.8.5
+sphinx-rtd-theme==0.4.3
+sphinxcontrib-websupport==1.1.0

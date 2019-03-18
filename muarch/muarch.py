@@ -345,9 +345,10 @@ class MUArch:
 
             If a random number generator function is passed in, he size will be automatically derived to save the user
             the trouble. However, the function must:
-                * take as it first argument an integer or a tuple of integer
-                * have other parameters that are optional
-                * return a numpy array
+
+            * take as it first argument an integer or a tuple of integer
+            * have other parameters that are optional
+            * return a numpy array
 
         n_jobs: int or None, optional
             The number of jobs to run in parallel for simulation. This is particularly useful when simulating large
