@@ -20,8 +20,7 @@ requirements:
     - python >=3.6
     - setuptools
     - cython >=0.29
-    - numpy 1.14.*  # [py==3.7]
-    - numpy 1.12.*  # [py!=3.7]
+    - numpy >=1.14
   run:
     - python >=3.6
     {% for dep in data['install_requires'] %}
