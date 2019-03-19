@@ -1,0 +1,36 @@
+{% set data = load_setup_py_data() %}
+
+
+package:
+  name: muarch
+  version: {{ data['version' ] }}
+
+source:
+  path: ..
+
+build:
+  number: 1
+  string: py{{ CONDA_PY }}
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+  host:
+    - python >=3.6
+    - setuptools
+    - cython >=0.29
+    - numpy 1.14.*  # [py==3.7]
+    - numpy 1.12.*  # [py!=3.7]
+  run:
+    - python >=3.6
+    {% for dep in data['install_requires'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+
+about:
+  home: https://github.com/DanielBok/muarch
+  license: MIT
+  summary: Multiple Univariate ARCH modeling toolbox built on top of the ARCH package
+  dev_url: https://github.com/DanielBok/muarch
+  doc_url: https://muarch.rtfd.io
