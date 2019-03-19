@@ -90,7 +90,7 @@ def run_setup():
         'copulae >=0.2.0',
         'numpy >=1.15',
         'scipy >=1.1',
-        'setuptools >=40.8'
+        'setuptools >=40.8',
         'pandas >=0.23'
     ]
 
