@@ -34,14 +34,18 @@ def clean():
 
 
 @cli.command()
-def deps():
+@click.option('--include-setuptools', 'include_setuptools', is_flag=True, default=False,
+              help='If enabled, includes setuptools')
+def deps(include_setuptools):
     """Builds dependency file for read the docs to install"""
     file = 'requirements_docs.txt'
     echo("Building", style(file, 'green'))
 
-    dependencies = shell_run('pip freeze').splitlines()
+    dependencies = shell_run('pip freeze --all').splitlines()
 
     capture = ['sphinx']
+    if include_setuptools:
+        capture.append('setuptools')
 
     text = ""
     for d in dependencies:

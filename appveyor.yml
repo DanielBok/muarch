@@ -64,16 +64,22 @@ test_script:
 
 artifacts:
   - path: dist\*
-    name: pypiartifacts
+    name: pypi artifacts
+
+  - path: conda-dist\*
+    name: conda artifacts
 
 after_test:
-  - ECHO "DONE!"
-  - ECHO "BUILDING WHEELS..."
-  - python setup.py %SDIST% bdist_wheel
+  - conda install conda-build anaconda-client
+  - conda build --output-folder dists conda.recipe
 
 deploy_script:
   - ps: |
       if ($env:appveyor_repo_tag -eq $true) {
+        - ECHO "DONE!"
+        - ECHO "BUILDING WHEELS..."
+        - python setup.py %SDIST% bdist_wheel
+
         ECHO "Starting wheel deployment"
         twine upload --verbose -u $env:PYPI_USERNAME -p $env:PYPI_PASSWORD dist/*
         ECHO "Finished wheel deployment"
