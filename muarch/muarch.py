@@ -20,6 +20,8 @@ class MUArch:
     Any simulations returns simulations of each univariate series column bound together.
     """
 
+    __n: int
+
     def __init__(self, n: Union[int, Iterable[UArch]], mean='Constant', lags=0, vol='GARCH', p=1, o=0, q=1, power=2.0,
                  dist='Normal', hold_back=None, scale=1):
         """
@@ -520,3 +522,6 @@ class MUArch:
         txt = f'{"Arch Models":^80}\n' + '=' * 80 + '\n\n'
         txt += '\n\n\n'.join(str(m) for m in self)
         return txt
+
+    def __len__(self):
+        return self.__n
