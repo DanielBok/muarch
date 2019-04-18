@@ -6,20 +6,19 @@ from setuptools import Extension, find_packages, setup
 import versioneer
 
 try:
-    from Cython.Build import cythonize, build_ext as _build_cython_ext
+    from Cython.Build import cythonize
     from Cython.Compiler import Options
+    from Cython.Distutils.build_ext import new_build_ext as build_ext
 
     USE_CYTHON = True
 except ImportError:
+    from distutils.command.build_ext import build_ext
+
     USE_CYTHON = False
 
 
     def cythonize(x, *args, **kwargs):
         return x
-
-
-    def _build_cython_ext(*args, **kwargs):
-        return None
 
 
     class Options:
@@ -29,9 +28,11 @@ DEV_BUILD = os.environ.get('DEV_BUILD', '0').lower() in ('true', '1')
 PACKAGE_NAME = 'muarch'
 
 cmdclass = versioneer.get_cmdclass()
-cmdclass['build_ext'] = _build_cython_ext
+cmdclass.update({
+    'build_ext': build_ext
+})
 
-with open('readme.md') as f:
+with open('README.md') as f:
     long_description = f.read()
 
 
@@ -58,8 +59,7 @@ def build_ext_modules():
 
         for i, source in enumerate(m['sources']):
             _file, _ext = os.path.splitext(source)
-            if ext in ('.pyx', '.py'):
-                m['sources'][i] = _file + ext
+            m['sources'][i] = _file + ext
 
         extensions.append(Extension(**m, language=language, define_macros=macros))
 

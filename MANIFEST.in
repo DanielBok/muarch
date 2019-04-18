@@ -1,10 +1,10 @@
 include MANIFEST.in
-include LICENSE
-include RELEASE.md
 include README.md
 include setup.py
 include versioneer.py
 include muarch/_version.py
+
+graft muarch
 
 recursive-include muarch/datasets *.csv
 
