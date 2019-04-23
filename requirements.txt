@@ -53,7 +53,7 @@ tornado==5.1.1
 tqdm==4.31.1
 traitlets==4.3.2
 twine==1.13.0
-urllib3==1.24.1
+urllib3==1.25
 wcwidth==0.1.7
 webencodings==0.5.1
 wheel==0.33.1
