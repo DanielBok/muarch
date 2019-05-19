@@ -1,6 +1,7 @@
 cimport cython
 
 from libc.math cimport sqrt, pi
+from libc.stdint cimport int64_t
 import numpy as np
 
 
@@ -8,21 +9,21 @@ import numpy as np
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-def garch_simulate(int p,
-                   int o,
-                   int q,
+def garch_simulate(int64_t p,
+                   int64_t o,
+                   int64_t q,
                    double power,
                    double[:] parameters,
-                   int nobs,
-                   int burn,
-                   int max_lag,
+                   int64_t nobs,
+                   int64_t burn,
+                   int64_t max_lag,
                    double[:] fsigma,
                    double[:] fdata,
                    double[:] data,
                    double[:] sigma2,
                    double[:] errors):
     cdef:
-        int j, t, loc
+        int64_t j, t, loc
 
     for t in range(max_lag, nobs + burn):
         loc = 0
@@ -48,19 +49,19 @@ def garch_simulate(int p,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-def egarch_simulate(int p,
-                    int o,
-                    int q,
-                    int nobs,
-                    int burn,
-                    int max_lag,
+def egarch_simulate(int64_t p,
+                    int64_t o,
+                    int64_t q,
+                    int64_t nobs,
+                    int64_t burn,
+                    int64_t max_lag,
                     double[:] parameters,
                     double[:] data,
                     double[:] sigma2,
                     double[:] lnsigma2,
                     double[:] errors):
     cdef:
-        int j, t, loc
+        int64_t j, t, loc
         double[:] abserrors = np.abs(errors)
         double norm_const = (2 / pi) ** 0.5
 
@@ -86,9 +87,9 @@ def egarch_simulate(int p,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-def figarch_simulate(int nobs,
-                     int burn,
-                     int truncation,
+def figarch_simulate(int64_t nobs,
+                     int64_t burn,
+                     int64_t truncation,
                      double power,
                      double omega_tilde,
                      double[:] data,
@@ -97,7 +98,7 @@ def figarch_simulate(int nobs,
                      double[:] sigma2,
                      double[:] lam_rev,
                      double[:] errors):
-    cdef int i, t
+    cdef int64_t i, t
 
     for t in range(truncation, truncation + nobs + burn):
         fsigma[t] = omega_tilde
@@ -115,17 +116,17 @@ def figarch_simulate(int nobs,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-def harch_simulate(int nobs,
-                   int burn,
-                   int max_lag,
+def harch_simulate(int64_t nobs,
+                   int64_t burn,
+                   int64_t max_lag,
                    double[:] parameters,
                    double[:] data,
                    double[:] sigma2,
                    double[:] errors,
-                   int[:] lags):
+                   long[:] lags):
     cdef:
-        int i, j, t
-        int[:] lag
+        int64_t i, j, t
+        long[:] lag
         double param
 
     for t in range(max_lag, nobs + burn):
@@ -142,20 +143,20 @@ def harch_simulate(int nobs,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-def garch_simulate_mc(int p,
-                      int o,
-                      int q,
+def garch_simulate_mc(int64_t p,
+                      int64_t o,
+                      int64_t q,
                       double power,
-                      int reps,
-                      int nobs,
-                      int burn,
+                      int64_t reps,
+                      int64_t nobs,
+                      int64_t burn,
                       double[::1] parameters,
                       double initial_value,
                       double[:, ::1] errors):
     cdef:
-        int max_lag = max([p, o, q])
-        int turns = nobs + burn
-        int r, t
+        int64_t max_lag = max([p, o, q])
+        int64_t turns = nobs + burn
+        int64_t r, t
         double[:, ::1] sigma2 = np.zeros((turns, reps), dtype=np.float64)
         double[:, ::1] data = np.zeros((turns, reps), dtype=np.float64)
         double[:, ::1] fsigma = np.zeros((turns, reps), dtype=np.float64)
@@ -178,13 +179,13 @@ def garch_simulate_mc(int p,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-cdef double[:, ::1] _garch_simulate_mc(int p,
-                                       int o,
-                                       int q,
+cdef double[:, ::1] _garch_simulate_mc(int64_t p,
+                                       int64_t o,
+                                       int64_t q,
                                        double power,
-                                       int reps,
-                                       int nobs,
-                                       int burn,
+                                       int64_t reps,
+                                       int64_t nobs,
+                                       int64_t burn,
                                        double[::1] parameters,
                                        double[:, ::1] fsigma,
                                        double[:, ::1] sigma2,
@@ -192,8 +193,8 @@ cdef double[:, ::1] _garch_simulate_mc(int p,
                                        double[:, ::1] data,
                                        double[:, ::1] errors):
     cdef:
-        int j, r, t, loc
-        int max_lag = max([p, o, q])
+        int64_t j, r, t, loc
+        int64_t max_lag = max([p, o, q])
 
     for r in range(reps):
         for t in range(max_lag, nobs + burn):
@@ -221,18 +222,18 @@ cdef double[:, ::1] _garch_simulate_mc(int p,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-def egarch_simulate_mc(int p,
-                       int o,
-                       int q,
-                       int nobs,
-                       int burn,
-                       int reps,
+def egarch_simulate_mc(int64_t p,
+                       int64_t o,
+                       int64_t q,
+                       int64_t nobs,
+                       int64_t burn,
+                       int64_t reps,
                        double[::1] parameters,
                        double[:, ::1] sigma2,
                        double[:, ::1] lnsigma2,
                        double[:, ::1] errors):
     cdef:
-        int r, max_lag = max([p, o, q])
+        int64_t r, max_lag = max([p, o, q])
         double[:, ::1] abserrors = np.abs(errors)
         double[:, ::1] data
 
@@ -247,17 +248,17 @@ def egarch_simulate_mc(int p,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-cdef _egarch_simulate_mc(int p,
-                         int o,
-                         int q,
-                         int start,
-                         int end,
+cdef _egarch_simulate_mc(int64_t p,
+                         int64_t o,
+                         int64_t q,
+                         int64_t start,
+                         int64_t end,
                          double[:] parameters,
                          double[:] abserrors,
                          double[:] lnsigma2,
                          double[:] errors):
     cdef:
-        int j, t, loc
+        int64_t j, t, loc
         double norm_const = (2 / pi) ** 0.5
 
     for t in range(start, end):
