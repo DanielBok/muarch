@@ -1,8 +1,11 @@
 OUTPUT_DIR := dist
 
-.PHONY:	dist dist-wheel ext test
+.PHONY:	clean dist dist-wheel ext test
 
-all: dist
+all: clean dist
+
+clean:
+	rm -rf .coverage build dist htmlcov
 
 dist: ext
 	python setup.py sdist

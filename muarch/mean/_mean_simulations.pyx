@@ -16,12 +16,12 @@ def simulate_harx(
         double[:, :] x,
         double[:] errors,
         double[:] params,
-        long[:, :] lags):
+        int64_t[:, :] lags):
 
     cdef:
         int64_t t, i, j, ind, lag_start, lag_end
         double ar
-        long[:] lag
+        int64_t[:] lag
 
     for t in range(max_lag, nobs):
         ind = 0
@@ -56,7 +56,7 @@ def simulate_harx_mc(
         double[:, :] x,
         double[:, :] errors,
         double[:] params,
-        long[:, :] lags):
+        int64_t[:, :] lags):
 
     cdef double[:, :] data = _simulate_harx_mc(y, nobs, reps, k_x, max_lag, constant, x, errors, params, lags)
     return np.asarray(data, np.float64)
@@ -74,11 +74,11 @@ cdef double[:, :] _simulate_harx_mc(
     double[:, :] x,
     double[:, :] errors,
     double[:] params,
-    long[:, :] lags
+    int64_t[:, :] lags
 ):
     cdef:
         int64_t i, j, r, t, ind
-        long[:] lag
+        int64_t[:] lag
         double ar
 
     for r in range(reps):

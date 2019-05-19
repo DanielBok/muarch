@@ -6,17 +6,16 @@ image: Visual Studio 2015
 
 environment:
   global:
-    PYPI_PASSWORD:
+    PASSWORD:
       secure: UyXXrJgoqj2VfcHDA9/PTw==
-    PYPI_USERNAME: DannieBee
+    PYPI_USERNAME:
+      secure: CnaavCcEu6Q8wPk1+Z7LFw==
+    CONDA_USERNAME:
+      secure: b1oGz3J0+f7ywfFmUoj1uw==
 
   matrix:
     - CONDA: C:\Miniconda36-x64
-      COVERAGE: "False"
-      SDIST: ""
     - CONDA: C:\Miniconda37-x64
-      SDIST: "sdist"
-      COVERAGE: "True"
 
 platform:
   - x64
@@ -42,19 +41,19 @@ install:
   - conda config --append channels bashtage
   - conda config --get channels
   - >
-    conda install 
+    conda create -n env
     arch 
     copulae
     cython
     matplotlib
-    numpy=1.15
+    numpy
     pandas
     pytest
     pytest-cov
     scipy
-    statsmodels 
-    twine
+    statsmodels
     wheel
+  - activate env
 
 build_script:
   - python setup.py build_ext --inplace
@@ -69,11 +68,18 @@ artifacts:
 deploy_script:
   - ps: |
       if ($env:appveyor_repo_tag -eq $true) {
+        activate env
         ECHO "DONE!"
         ECHO "BUILDING WHEELS..."
-        python setup.py %SDIST% bdist_wheel
+        python setup.py bdist_wheel
+
+        conda install anaconda-client conda-build conda-verify twine
 
         ECHO "Starting wheel deployment"
-        twine upload --verbose -u $env:PYPI_USERNAME -p $env:PYPI_PASSWORD dist/*
+        twine upload --verbose -u $env:PYPI_USERNAME -p $env:PASSWORD dist/*
         ECHO "Finished wheel deployment"
+
+        New-Item -ItemType Directory -Force -Path output-dir
+        conda build --output-folder output-dir conda.recipe
+        anaconda upload --username $env:CONDA_USERNAME --password $env:PASSWORD output-dir/win-64/*.tar.bz2
       }

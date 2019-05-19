@@ -117,7 +117,7 @@ def harx_simulator(class_func):
         y = np.zeros(nobs + burn)
         y[:max_lag] = initial_value
 
-        simulate_harx(y, nobs + burn, k_x, max_lag, model.constant, x, errors, params, lags.T)
+        simulate_harx(y, nobs + burn, k_x, max_lag, model.constant, x, errors, params, lags.T.astype(np.int64))
 
         if data_only:
             return y[burn:]
@@ -215,6 +215,7 @@ def harx_mc_simulator(class_func):
 
         y = np.zeros((nobs + burn, reps), np.float64)  # y is modified in place
         y[:max_lag, :reps] = initial_value
-        return simulate_harx_mc(y, nobs + burn, reps, k_x, max_lag, model.constant, x, errors, params, lags.T)[burn:]
+        return simulate_harx_mc(y, nobs + burn, reps, k_x, max_lag, model.constant, x, errors, params,
+                                lags.T.astype(np.int64))[burn:]
 
     return decorator

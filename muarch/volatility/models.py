@@ -157,7 +157,7 @@ class HARCH(H):
         sigma2[:max_lag] = initial_value
         data[:max_lag] = np.sqrt(initial_value)
 
-        return vs.harch_simulate(nobs, burn, max_lag, parameters, data, sigma2, errors, lags)
+        return vs.harch_simulate(nobs, burn, max_lag, parameters, data, sigma2, errors, lags.astype(np.int64))
 
     def simulate_mc(self, parameters: np.ndarray, reps: int, nobs: int, rng: RNG, burn=500, initial_value=None):
         raise NotImplementedError

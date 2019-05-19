@@ -123,10 +123,9 @@ def harch_simulate(int64_t nobs,
                    double[:] data,
                    double[:] sigma2,
                    double[:] errors,
-                   long[:] lags):
+                   int64_t[:] lags):
     cdef:
         int64_t i, j, t
-        long[:] lag
         double param
 
     for t in range(max_lag, nobs + burn):
