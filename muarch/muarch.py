@@ -454,15 +454,14 @@ class MUArch:
         # Format exogenous regressors
         if x is not None:
             if isinstance(x, np.ndarray):
-                if x.ndim != 3:
-                    raise ValueError("If numpy array passed in as MUArch `x` (exog), make sure it is a 3 "
+                assert x.ndim == 3, ("If numpy array passed in as MUArch `x` (exog), make sure it is a 3 "
                                      "dimensional array where the last dimension is the number of elements")
                 x = [x[i] for i in range(self.__n)]
             else:
                 x = list(x)
-                if len(x) != self.__n:
-                    raise ValueError("Exogenous variable's list should have the same number of elements as the "
-                                     "number of models")
+
+                assert len(x) == self.__n, ("Exogenous variable's list should have the same number of elements as the "
+                                            "number of models")
 
                 for i, xx in enumerate(x):
                     if xx is None:
@@ -496,9 +495,8 @@ class MUArch:
                 custom_dist = custom_dist.reshape(1, -1)
 
             dim = custom_dist.shape[-1]
-            if dim != self.__n:
-                raise ValueError(f"expected generator to return array with {self.__n} vectors in the last axis "
-                                 f"(of shape) but got {dim}")
+            assert dim == self.__n, (f"expected generator to return array with {self.__n} vectors in the last axis "
+                                     f"(of shape) but got {dim}")
 
         return initial_value, initial_value_vol, x, custom_dist
 
@@ -511,8 +509,7 @@ class MUArch:
         return self.__models[i]
 
     def __setitem__(self, i: int, model: UArch):
-        if not isinstance(model, UArch):
-            raise ValueError('only UArch models are allowed to be set as a component of the MUArch object')
+        assert isinstance(model, UArch), 'only UArch models are allowed to be set as a component of the MUArch object'
         self.__models[i] = model
 
     def __repr__(self):

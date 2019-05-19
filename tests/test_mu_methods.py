@@ -44,7 +44,22 @@ def test_mu_residuals(model):
 
 def test_mu_summary(model):
     assert isinstance(model.summary(short=True), pd.DataFrame)
-    assert isinstance(model.summary(), SummaryList)
+
+    smry: SummaryList = model.summary()
+    smry[0].add_header('Header Text')  # add headers
+    smry[0], smry[1] = smry[1], smry[0]  # swaps
+
+    assert isinstance(smry, SummaryList)
+    assert isinstance(str(smry), str)
+    assert isinstance(repr(smry), str)
+    assert isinstance(smry.as_csv(), str)
+    assert isinstance(smry.as_html(), str)
+    assert isinstance(smry.as_latex(), str)
+    assert isinstance(smry.as_text(), str)
+    assert isinstance(smry._repr_html_(), str)
+
+    with pytest.raises(ValueError):
+        smry.append(0)
 
 
 def test__repr_html_(model):
