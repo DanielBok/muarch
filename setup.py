@@ -87,7 +87,7 @@ def run_setup():
 
     install_requires = [
         'arch >=4.7',
-        'copulae >=0.2.0',
+        'copulae >=0.4.0',
         'numpy >=1.15',
         'scipy >=1.1',
         'setuptools >=40.8',
