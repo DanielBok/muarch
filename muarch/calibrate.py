@@ -4,6 +4,8 @@ from typing import Iterable, Optional
 import numpy as np
 import scipy.optimize as opt
 
+__all__ = ['calibrate_data', 'truncate_outliers']
+
 
 def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd: Optional[Iterable[float]] = None,
                    time_unit=12):
@@ -70,6 +72,55 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
         data[..., i] = data[..., i] * sol[i, 0] + sol[i, 1]
 
     return data
+
+
+def truncate_outliers(data: np.ndarray, sd=0, replacement='mean'):  # pragma: no cover
+    """
+    Truncates outliers by replacing it with the mean, median or a specified value.
+
+    Outlier is determined by the number of standard deviations past the mean within the asset group.
+
+    Parameters
+    ----------
+    data: ndarray
+        The tensor (data cube) where the axis represents time, trials and number of asset classes respectively
+
+    sd: float
+        The number of standard deviations to consider a point an outlier
+
+    replacement: {float, 'mean', 'median'}
+        The value to replace outliers with. Valid values are 'mean', 'median' or a number.
+
+    Returns
+    -------
+    ndarray
+        A data cube with the outliers replaced
+    """
+    assert sd >= 0, "Standard deviations to determine outliers must be >= 0"
+
+    if isinstance(replacement, str):
+        assert replacement.lower() in ('mean', 'median'), "replacement can only be 'mean', 'median' or a float value"
+    else:
+        assert isinstance(replacement, float), "replacement can only be 'mean', 'median' or a float value"
+    if sd == 0:
+        return data
+
+    cube = np.copy(data)
+    for i in range(data.shape[2]):
+        returns = cube[..., i]
+        mean, std = returns.mean(), returns.std()
+        bottom = mean - sd * std
+        top = mean + sd * std
+
+        if isinstance(replacement, str):
+            r = np.mean(returns) if replacement == 'mean' else np.median(returns)
+        else:
+            r = float(replacement)
+
+        returns[returns >= top] = r
+        returns[returns <= bottom] = r
+
+    return cube
 
 
 def _asset_moments(x: np.ndarray, asset: np.ndarray, t_vol: float, t_mean: float, time_unit: int):
