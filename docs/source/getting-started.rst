@@ -14,3 +14,9 @@ Installing MUArch
 .. code-block:: bash
 
     pip install muarch
+
+Alternatively, you can install it via :code:`conda` with
+
+.. code-block:: bash
+
+    conda install -c danielbok muarch

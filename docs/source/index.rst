@@ -21,7 +21,7 @@ Contents
 
         Getting Started <getting-started>
         Examples <examples/index>
-        API <api>
+        API <api/index>
 
 Indices and tables
 ==================
