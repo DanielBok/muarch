@@ -36,6 +36,7 @@ class UArch(_ArchBase):
             * 'ARX' - Autoregression model with exogenous regressors. Falls back to 'AR' if no exogenous regressors
             * 'HAR' - Heterogeneous Autoregression model
             * 'HARX' - Heterogeneous Autoregressions with exogenous regressors
+            * 'LS' - Least squares model
 
             For more information on the different models, check out the documentation at
             https://arch.readthedocs.io/en/latest/univariate/mean.html
@@ -43,9 +44,9 @@ class UArch(_ArchBase):
         lags: int or list (int), optional
             Either a scalar integer value indicating lag length or a list of integers specifying lag locations.
 
-        vol: { 'GARCH', 'ARCH', 'EGARCH', 'FIGARCH' and 'HARCH' }, optional
+        vol: { 'GARCH', 'ARCH', 'CONSTANT' 'EGARCH', 'FIGARCH' and 'HARCH' }, optional
             Name of the volatility model.  Currently supported options are:
-            'GARCH' (default), 'ARCH', 'EGARCH', 'FIGARCH' and 'HARCH'
+            'GARCH' (default), 'ARCH', 'CONSTANT', 'EGARCH', 'FIGARCH' and 'HARCH'
 
         p: int, optional
             Lag order of the symmetric innovation
