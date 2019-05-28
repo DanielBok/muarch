@@ -1,4 +1,3 @@
-import warnings
 from typing import Iterable, Optional
 
 import numpy as np
@@ -34,42 +33,55 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
         An instance of the adjusted numpy tensor
     """
     data = data.copy()
-    s = data.shape
+    y, n, num_assets = data.shape
+    y //= time_unit
 
-    def calc_annualized_mean(d: np.ndarray, years: float):
-        d = (d + 1).prod(0)
-        s = np.sign(d)
-        return (s * np.abs(d) ** (1 / years)).mean(0) - 1
+    def set_target(target_values: Optional[Iterable[float]], typ: str, default: np.ndarray):
+        if target_values is None:
+            return default, [0 if typ == 'mean' else 1] * num_assets
 
-    def set_target(d: Optional[Iterable[float]], defaults: np.ndarray):
-        if d is None:
-            return defaults
-
-        assert s[2] == len(d) == len(defaults), "vector length must be equal to number of assets in data cube"
-        for i, v in enumerate(d):
+        best_guess = []
+        target_values = np.asarray(target_values)
+        assert num_assets == len(target_values) == len(
+            default), "vector length must be equal to number of assets in data cube"
+        for i, v in enumerate(target_values):
             if v is None:
-                d[i] = defaults[i]
-        return d
+                target_values[i] = default[i]
+                best_guess.append(0 if typ == 'mean' else 1)
+            else:
+                best_guess.append(target_values[i] - default[i] if typ == 'mean' else default[i] / target_values[i])
+        return target_values, best_guess
 
-    y = s[0] // time_unit
-    target_means = set_target(mean, calc_annualized_mean(data, y))
-    target_vols = set_target(sd, ((data.reshape((y, time_unit, *s[1:])) + 1).prod(1) - 1).std(1).mean(0))
+    d = (data + 1).prod(0)
+    default_mean = (np.sign(d) * np.abs(d) ** (1 / y)).mean(0) - 1
+    default_vol = ((data + 1).reshape(y, time_unit, n, num_assets).prod(1) - 1).std(1).mean(0)
 
-    assert len(target_vols) == len(target_means)
-    num_assets = s[2]
+    target_means, guess_mean = set_target(mean, 'mean', default_mean)
+    target_vols, guess_vol = set_target(sd, 'vol', default_vol)
 
     sol = np.asarray([opt.root(
         fun=_asset_moments,
-        x0=np.random.uniform(0, 0.02, 2),
+        x0=[gv, gm],
         args=(data[..., i], tv, tm, time_unit)
-    ).x for i, tv, tm in zip(range(num_assets), target_vols, target_means)])
+    ).x for i, tv, tm, gv, gm in zip(range(num_assets), target_vols, target_means, guess_vol, guess_mean)])
 
     for i in range(num_assets):
         if sol[i, 0] < 0:
-            warnings.warn(f'negative vol adjustment at index {i}. This is a cause of concern as a negative vol '
-                          f'multiplier will alter the correlation structure')
+            # negative vol adjustments would alter the correlation between asset classes (flip signs)
+            # in such instances, we fall back to using the a simple affine transform where
+            # R' = (tv/cv) * r  # adjust vol first
+            # R' = (tm - mean(R'))  # adjust mean
 
-        data[..., i] = data[..., i] * sol[i, 0] + sol[i, 1]
+            # adjust vol
+            tv = default_vol[i]
+            cv = sd[i] if sd[i] is not None else tv
+            data[..., i] *= tv / cv  # tv / cv
+
+            # adjust mean
+            tm, cm = target_means[i], data[..., i].mean()
+            data[..., i] += (tm - cm)  # (tm - mean(R'))
+        else:
+            data[..., i] = data[..., i] * sol[i, 0] + sol[i, 1]
 
     return data
 
