@@ -91,7 +91,7 @@ after_success:
 
       mkdir -p output-dir
       conda build --output-folder output-dir conda.recipe
-      anaconda upload --username $ANACONDA_USERNAME --password $ANACONDA_PASSWORD output-dir/**/muarch*.tar.bz2
+      anaconda -t $CONDA_TOKEN upload output-dir/**/muarch*.tar.bz2 --skip-existing
     fi
 
 deploy:
