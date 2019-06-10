@@ -33,6 +33,8 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
         An instance of the adjusted numpy tensor
     """
     data = data.copy()
+    assert not np.isnan(data).any(), "data cube must not have nan values"
+
     y, n, num_assets = data.shape
     y //= time_unit
 
@@ -66,15 +68,15 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
     ).x for i, tv, tm, gv, gm in zip(range(num_assets), target_vols, target_means, guess_vol, guess_mean)])
 
     for i in range(num_assets):
-        if sol[i, 0] < 0:
+        if sol[i, 0] < 0 or np.isnan(sol[i]).any():
             # negative vol adjustments would alter the correlation between asset classes (flip signs)
             # in such instances, we fall back to using the a simple affine transform where
             # R' = (tv/cv) * r  # adjust vol first
             # R' = (tm - mean(R'))  # adjust mean
 
             # adjust vol
-            tv = default_vol[i]
-            cv = sd[i] if sd[i] is not None else tv
+            cv = default_vol[i]
+            tv = sd[i] if sd[i] is not None else tv
             data[..., i] *= tv / cv  # tv / cv
 
             # adjust mean
