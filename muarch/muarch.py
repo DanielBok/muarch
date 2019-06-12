@@ -21,6 +21,7 @@ class MUArch:
     """
 
     __n: int
+    __models: List[UArch]
 
     def __init__(self, n: Union[int, Iterable[UArch]], mean='Constant', lags=0, vol='GARCH', p=1, o=0, q=1, power=2.0,
                  dist='Normal', hold_back=None, scale=1):
@@ -90,22 +91,19 @@ class MUArch:
             self.__models = list(n)
             self.__n = len(self.__models)
 
-            if self.__n == 0:
-                raise ValueError('If passing in a list of UArch models, list cannot be empty!')
+            assert self.__n != 0, "If passing in a list of UArch models, list cannot be empty!"
 
             for i, m in enumerate(self.__models):
-                if not isinstance(m, UArch):
-                    raise TypeError(f'The model in index {i} must be an instance of UArch')
+                assert isinstance(m, UArch), f'The model in index {i} must be an instance of UArch'
+
+            self._model_names = [str(i) for i in range(self.__n)]
 
         elif type(n) is int:
             self.__n = n
-            self.__models: List[UArch] = [
-                UArch(mean, lags, vol, p, o, q, power, dist, hold_back, scale)
-                for i in range(n)]
+            self.__models = [UArch(mean, lags, vol, p, o, q, power, dist, hold_back, scale) for _ in range(n)]
+            self._model_names = [str(i) for i in range(n)]
         else:
             raise TypeError('`n` must either be an integer specifying the number of models or a list of UArch models')
-
-        self._model_names = [str(i) for i in range(n)]
 
     def fit(self, y: Union[pd.DataFrame, np.ndarray], x: Exog = None, update_freq=1, disp='off', cov_type='robust',
             show_warning=True, tol=None, options=None):

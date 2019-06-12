@@ -22,8 +22,8 @@ def model(returns):
 @pytest.mark.parametrize('n, err', [
     (3, None),
     ([UArch(), UArch(), UArch()], None),
-    ([], ValueError),
-    ([UArch(), 213], TypeError),
+    ([], AssertionError),
+    ([UArch(), 213], AssertionError),
     (UArch(), TypeError)
 ])
 def test_mu_specs_correctly(n, err):
