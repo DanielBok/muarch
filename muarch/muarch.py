@@ -25,7 +25,7 @@ class MUArch:
 
     def __init__(self, n: Union[int, Iterable[UArch]], mean='Constant', lags=0, vol='GARCH', p=1, o=0, q=1, power=2.0,
                  dist='Normal', hold_back=None, scale=1):
-        """
+        r"""
         Initializes the MUArch model.
 
         The MUArch model holds multiple univariate models which are determined during fitting. If the models are not
@@ -40,23 +40,39 @@ class MUArch:
         mean: { 'zero', 'constant', 'harx', 'har', 'ar', 'arx', 'ls' }, optional
             Name of the global default mean model.  Currently supported options are:
 
-            * 'Constant' - Constant mean model
-            * 'Zero' - Zero mean model
-            * 'AR' - Autoregression model
-            * 'ARX' - Autoregression model with exogenous regressors. Falls back to 'AR' if no exogenous regressors
-            * 'HAR' - Heterogeneous Autoregression model
-            * 'HARX' - Heterogeneous Autoregressions with exogenous regressors
+            * **Constant** (default) - Constant mean model
+            * **Zero** - Zero mean model
+            * **AR** - Autoregression model
+            * **ARX** - Autoregression model with exogenous regressors. Falls back to **AR** if no exogenous regressors
+            * **HAR** - Heterogeneous Autoregression model
+            * **HARX** - Heterogeneous Autoregressions with exogenous regressors
+            * **LS** - Least squares model
 
             For more information on the different models, check out the documentation at
-            https://muarch.readthedocs.io/en/latest/univariate/mean.html
+            https://arch.readthedocs.io/en/latest/univariate/mean.html
 
         lags: int or list (int), optional
             Global default lag. Either a scalar integer value indicating lag length or a list of integers specifying
             lag locations.
 
-        vol: { 'GARCH', 'ARCH', 'EGARCH', 'FIGARCH' and 'HARCH' }, optional
+        vol: { 'GARCH', 'ARCH', 'EGARCH', 'FIGARCH' and 'HARCH', 'CONSTANT' }, optional
             Name of the global default volatility model.  Currently supported options are:
-            'GARCH' (default), 'ARCH', 'EGARCH', 'FIGARCH' and 'HARCH'
+
+            * **GARCH** (default) - Standard GARCH process which can be used to specify the following models:
+
+                * ARCH(p)
+                * GARCH(p,q)
+                * GJR-GARCH(p,o,q)
+                * AVARCH(p)
+                * AVGARCH(p,q)
+                * TARCH(p,o,q)
+                * Models with arbitrary, pre-specified powers
+
+            * **ARCH** - ARCH process
+            * **EGARCH** - EGARCH process
+            * **FIGARCH** - Fractionally Integrated (FI) GARCH process
+            * **HARCH** - Heterogeneous ARCH process
+            * **Constant** (default) - Constant volatility process
 
         p: int, optional
             Global default lag order of the symmetric innovation
@@ -68,14 +84,17 @@ class MUArch:
             Global default lag order of lagged volatility or equivalent
 
         power: float, optional
-            Global default power to use with GARCH and related models
+            Global default power to use with the innovations, Default is 2.0, which produces ARCH and related
+            models. Using 1.0 produces AVARCH and related models. Other powers can be specified, although these should
+            be strictly positive, and usually larger than 0.25.
 
         dist:  { 'normal', 'gaussian', 'studentst', 't', 'skewstudent', 'skewt', 'ged', 'generalized error' }, optional
-            Name of the global default error distribution.  Currently supported options are:
-            * Normal: 'normal', 'gaussian' (default)
-            * Students's t: 't', 'studentst'
-            * Skewed Student's t: 'skewstudent', 'skewt'
-            * Generalized Error Distribution: 'ged', 'generalized error"
+            Name of the global default distribution for the innovations.  Currently supported options are:
+
+            * **normal**, **gaussian** (default) - Standard Normal distribution
+            * **t**, **studentst** - Standardized Student’s distribution
+            * **skewstudent**, **skewt** - Standardized Skewed Student’s distribution.
+            * **ged**, **generalized error" - Generalized Error Distribution
 
         hold_back: int
             Global default. Number of observations at the start of the sample to exclude when estimating model
