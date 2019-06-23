@@ -1,5 +1,4 @@
 import os
-import sys
 
 from setuptools import Extension, find_packages, setup
 
@@ -72,63 +71,52 @@ def build_ext_modules():
     return cythonize(extensions, compiler_directives=directives)
 
 
-def run_setup():
-    ext_modules = build_ext_modules()
+setup_requires = [
+    'cython >=0.29',
+    'numpy >=1.15'
+]
 
-    major, minor, *_ = sys.version_info
+install_requires = [
+    'arch >=4.7',
+    'copulae >=0.4.0',
+    'numpy >=1.15',
+    'scipy >=1.1',
+    'setuptools >=40.8',
+    'pandas >=0.23'
+]
 
-    if major != 3:
-        raise RuntimeError('Please build on python 3!')
-
-    setup_requires = [
-        'cython >=0.29',
-        'numpy >=1.15'
-    ]
-
-    install_requires = [
-        'arch >=4.7',
-        'copulae >=0.4.0',
-        'numpy >=1.15',
-        'scipy >=1.1',
-        'setuptools >=40.8',
-        'pandas >=0.23'
-    ]
-
-    setup(
-        name=PACKAGE_NAME,
-        license='MIT',
-        version=versioneer.get_version(),
-        description='Multiple Univariate ARCH modeling toolbox built on top of the ARCH package',
-        author='Daniel Bok',
-        author_email='daniel.bok@outlook.com',
-        packages=find_packages(include=['muarch', 'muarch.*']),
-        ext_modules=ext_modules,
-        url='https://github.com/DanielBok/muarch',
-        cmdclass=cmdclass,
-        long_description=long_description,
-        long_description_content_type='text/markdown',
-        classifiers=[
-            'Development Status :: 3 - Alpha',
-            'Intended Audience :: Education',
-            'Intended Audience :: End Users/Desktop',
-            'Intended Audience :: Financial and Insurance Industry',
-            'Intended Audience :: Science/Research',
-            'License :: OSI Approved :: MIT License',
-            'Operating System :: OS Independent',
-            'Programming Language :: Cython',
-            'Programming Language :: Python',
-            'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.6',
-            'Programming Language :: Python :: 3.7',
-            'Topic :: Education',
-            'Topic :: Scientific/Engineering',
-        ],
-        install_requires=install_requires,
-        setup_requires=setup_requires,
-        python_requires='>=3.6',
-        include_package_data=True,
-        zip_safe=False
-    )
-
-
-run_setup()
+setup(
+    name=PACKAGE_NAME,
+    license='MIT',
+    version=versioneer.get_version().split('+')[0],
+    description='Multiple Univariate ARCH modeling toolbox built on top of the ARCH package',
+    author='Daniel Bok',
+    author_email='daniel.bok@outlook.com',
+    packages=find_packages(include=['muarch', 'muarch.*']),
+    ext_modules=build_ext_modules(),
+    url='https://github.com/DanielBok/muarch',
+    cmdclass=cmdclass,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Education',
+        'Intended Audience :: End Users/Desktop',
+        'Intended Audience :: Financial and Insurance Industry',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Cython',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Topic :: Education',
+        'Topic :: Scientific/Engineering',
+    ],
+    install_requires=install_requires,
+    setup_requires=setup_requires,
+    python_requires='>=3.6',
+    include_package_data=True,
+    zip_safe=False
+)

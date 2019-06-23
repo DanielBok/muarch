@@ -1,4 +1,5 @@
 OUTPUT_DIR := dist
+CURDIR := $(shell pwd)
 
 .PHONY:	clean dist dist-wheel ext test
 
@@ -18,3 +19,10 @@ ext:
 
 test:
 	python -m pytest tests/
+
+
+m36:
+	docker run --rm -it -v $(CURDIR):/muarch continuumio/miniconda3 bash /muarch/scripts/conda.sh 3.6
+
+m37:
+	docker run --rm -it -v $(CURDIR):/muarch continuumio/miniconda3 bash /muarch/scripts/conda.sh 3.7
