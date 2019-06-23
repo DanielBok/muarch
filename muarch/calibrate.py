@@ -7,7 +7,7 @@ __all__ = ['calibrate_data', 'truncate_outliers']
 
 
 def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd: Optional[Iterable[float]] = None,
-                   time_unit=12):
+                   time_unit=12) -> np.ndarray:
     """
     Calibrates the data given the target mean and standard deviation.
 
@@ -32,7 +32,7 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
     ndarray
         An instance of the adjusted numpy tensor
     """
-    data = data.copy()
+    data = np.copy(data)
     assert not np.isnan(data).any(), "data cube must not have nan values"
 
     y, n, num_assets = data.shape
@@ -40,20 +40,27 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
 
     def set_target(target_values: Optional[Iterable[float]], typ: str, default: np.ndarray):
         if target_values is None:
+            # if no target values, set it to the cube's current mean or vol
             return default, [0 if typ == 'mean' else 1] * num_assets
 
         best_guess = []
-        target_values = np.asarray(target_values)
-        assert num_assets == len(target_values) == len(
-            default), "vector length must be equal to number of assets in data cube"
+        target_values = np.asarray([i if i is not None else np.nan for i in target_values], np.float)
+        assert num_assets == len(target_values) == len(default), \
+            "vector length must be equal to number of assets in data cube"
+
+        # for each value in the target, set the best guess for the adjustment needed to hit the target
         for i, v in enumerate(target_values):
-            if v is None:
+            if np.isnan(v):
                 target_values[i] = default[i]
                 best_guess.append(0 if typ == 'mean' else 1)
             else:
-                best_guess.append(target_values[i] - default[i] if typ == 'mean' else default[i] / target_values[i])
+                best_guess.append(target_values[i] - default[i]
+                                  if typ == 'mean' else
+                                  target_values[i] / default[i])
+
         return target_values, best_guess
 
+    # default mean and vol is also cube's current mean and vol
     d = (data + 1).prod(0)
     default_mean = (np.sign(d) * np.abs(d) ** (1 / y)).mean(0) - 1
     default_vol = ((data + 1).reshape(y, time_unit, n, num_assets).prod(1) - 1).std(1).mean(0)
@@ -76,7 +83,7 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
 
             # adjust vol
             cv = default_vol[i]
-            tv = sd[i] if sd[i] is not None else tv
+            tv = target_vols[i] if not np.isnan(target_vols[i]) else cv
             data[..., i] *= tv / cv  # tv / cv
 
             # adjust mean
