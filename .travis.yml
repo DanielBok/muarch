@@ -11,8 +11,6 @@ branches:
 env:
   global:
     - COVERAGE=false
-    - secure: "pThht+m/ilfV2bf3kBryORaN5uss1DrZ7hl9LWZDef+MJ6kFJ9aSpU/MRLabArTrqiT4UJyygEIWA0fAltkygJyWxmZTKjd75JnYjqSonHqL57QbAuD8zGjrInAR8OjhjEIjnufBne89HJiauDNkPR4yzrzNspac80+hkYTZq0hFUlVDQ3ry6FlS3tduDIc6j8pCKulpMo+yleGgPtIPNSh+RDLzPgYdwS8SNh6kCqRrnaS0l3u+WwFWTc4WY4gdDlKQJ/LFyrNt7ehf70qfQZc0hoeYyt9Cx6Z7j9252w39SVh850FZl0DdeRCi2z7q42EDzXWGZEfJEFiZugn+msL2UWZAB0ZMDyMnQqtSa2oB5D0RmglbilrVqAiNryDQFgy7DYWgtBRCLfv+++IfH1FeiJkC3SmTg0SyWday5IGm64JoVCjj2aewP4/eQiHBGM3s6o4uV9usxixbjmnz0ouZC6KUlne2c2y7eV4SDICMU2ZJcA/ym2ClXOxAgjxboFK+zcesumS+3Z8j6E+Ym0REwNWDnpWRLAGUdlhAOJmsU+LMdo02wZxO7/bhXpPQ0ktMfqtHqrHeeYUA1/9RXFqhxa4KmNQ3Gv+LaosTgnZn2gcjnMpA4M1euUFPJmaITZ6AnyH7o3J2PAYX/FPhP9X2ZfhYMfFvmpDus2n2Lb4="
-    - secure: "dwF7vyFTBatIEGrW786mk+l89g881w/2V/AqR/hKOCB0kgjkpztmpAHUEKVy0pUpAmcJifnzTOS0pEeOjBcj9PNKdQSQ+6U/YbAyS83uxL6PNh4qwQ5D0kVk7pQ9AO6jQudShaIlgDLR3cZcENGSpyFAcpXpZSzep5FgqgZsMHhJLE/Gkv/gBhRoi6aTKQv0Bg8EPGaSAb6cl02RK7Ik2IvLWtnOhpdmJyZZetk4tbxZfuNf0AynHHug/3BPdsdZLrs+tSKwLih5nYbAreuYkKIYZmrMPGIfunXooXEc2TF1ybrefGybD3kfzdtAlaoNKeHWOEwoiwLG96VXn0wMPAAi/+N58FUGtyFS/whsI/a5B8IzYt6/guX/r6A/JB9XGbDYCDquAKFgAH+z5ixW+hICpxLskHwqskUxsk2lqUiEsOxir3rnT45BH2wUQiwY0xFXw8oqewDbyNIiHr6xjdbSH40jAc2/ZwWx1Bv3ROpyjjGR7gxFv/MFbIUFIn+FocwLxRypA39Finnah9LqwyDvII6tFg45MrFLebJqlC04iQboxLXBoYUjXZWPpJ+8QnYnZiB9C/bN5r6tPC/std5kkY5U6J35LkQ2kiyUGaBfu9q2UnrQKC+HvvvbM/nG0s5JLObxSsgu+Br+Beuss0pz0RRDujmeYXospjRvkts="
 
 matrix:
   include:
@@ -82,16 +80,6 @@ after_success:
     if [[ "$COVERAGE" = true ]]; then
       echo "Uploading coverage report"
       coveralls;
-    fi
-  - |
-    if [[ ! -z "$TRAVIS_TAG" ]]; then
-      echo "Building and uploading package to anaconda"
-      conda install anaconda-client conda-build conda-verify
-      conda config --set anaconda_upload yes
-
-      mkdir -p output-dir
-      conda build --output-folder output-dir conda.recipe
-      anaconda -t $CONDA_TOKEN upload output-dir/**/muarch*.tar.bz2 --skip-existing
     fi
 
 deploy:

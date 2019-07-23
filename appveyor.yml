@@ -10,8 +10,8 @@ environment:
       secure: UyXXrJgoqj2VfcHDA9/PTw==
     PYPI_USERNAME:
       secure: CnaavCcEu6Q8wPk1+Z7LFw==
-    CONDA_TOKEN:
-      secure: lFSUM0O2tuIoc/xqGOIVAxnJ2OcocVk0xpNwv4UDl4e95AoqyT71d9GGn+5Vx3Dz
+    CONDA_USERNAME:
+      secure: b1oGz3J0+f7ywfFmUoj1uw==
 
   matrix:
     - CONDA: C:\Miniconda36-x64
@@ -64,23 +64,3 @@ test_script:
 artifacts:
   - path: dist\*
     name: pypi artifacts
-
-deploy_script:
-  - ps: |
-      if ($env:appveyor_repo_tag -eq $true) {
-        activate env
-        ECHO "DONE!"
-        ECHO "BUILDING WHEELS..."
-        python setup.py bdist_wheel
-
-        conda install anaconda-client conda-build conda-verify twine
-
-        ECHO "Starting wheel deployment"
-        twine upload --skip-existing --verbose -u $env:PYPI_USERNAME -p $env:PASSWORD dist/*
-        ECHO "Finished wheel deployment"
-
-        New-Item -ItemType Directory -Force -Path output-dir
-        conda build --output-folder output-dir conda.recipe
-
-        anaconda -t $env:CONDA_TOKEN upload output-dir/win-64/*.tar.bz2 --skip-existing
-      }
