@@ -3,10 +3,10 @@ CURDIR := $(shell pwd)
 
 .PHONY:	clean dist dist-wheel ext test
 
-all: clean dist
+all: clean dist linux-wheel
 
 clean:
-	rm -rf .coverage build dist htmlcov
+	rm -rf .eggs .coverage build dist/* htmlcov *.egg-info
 
 dist: ext
 	python setup.py sdist
@@ -17,9 +17,11 @@ dist-wheel: ext
 ext:
 	python setup.py build_ext --inplace
 
+linux-wheel:
+	docker run --rm -it -v $(CURDIR):/muarch danielbok/manylinux2010_x86_64 /muarch/scripts/linux.sh
+
 test:
 	python -m pytest tests/
-
 
 m36:
 	docker run --rm -it -v $(CURDIR):/muarch continuumio/miniconda3 bash /muarch/scripts/conda.sh 3.6
