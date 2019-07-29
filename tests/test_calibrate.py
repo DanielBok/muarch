@@ -1,18 +1,28 @@
-from muarch.calibrate import calibrate_data
 import numpy as np
+import pytest
 from numpy.testing import assert_almost_equal
 
+from muarch.calibrate import calibrate_data
 
-def test_calibrate():
+
+@pytest.mark.parametrize('target_mean, target_vol', [
+    (None, None),
+    ([0.3, -0.1], None),
+    (None, [0.6, 0.1]),
+    ([0.3, 0.1], [0.6, 0.1]),
+])
+def test_calibrate(target_mean, target_vol):
     np.random.seed(888)
-    data = np.random.normal(0, 0.25, (36, 100, 2))
+    data = np.random.uniform(-0.05, 0.05, (36, 100, 2))
+    calibrated = calibrate_data(data, target_mean, target_vol)
 
-    target_mean = [0.3, -0.1]
-    target_vol = [0.6, 0.1]
-    data = calibrate_data(data, target_mean, target_vol)
+    if target_mean:
+        assert_almost_equal(annualized_mean(calibrated), target_mean, 4)
+    if target_vol:
+        assert_almost_equal(annualized_vol(calibrated), target_vol, 4)
 
-    assert_almost_equal(annualized_mean(data), target_mean, 4)
-    assert_almost_equal(annualized_vol(data), target_vol, 4)
+    if target_mean is None and target_vol is None:
+        assert_almost_equal(data, calibrated)
 
 
 def annualized_mean(data: np.ndarray):
