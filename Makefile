@@ -8,6 +8,10 @@ all: clean dist linux-wheel
 clean:
 	rm -rf .eggs .coverage build dist/* htmlcov *.egg-info
 
+conda:
+	conda build --output-folder dist conda.recipe
+	conda build purge
+
 dist: ext
 	python setup.py sdist
 
