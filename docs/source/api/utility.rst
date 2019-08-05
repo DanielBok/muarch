@@ -10,3 +10,10 @@ Calibrate Data
 Truncate Outliers
 -----------------
 .. autofunction:: muarch.calibrate.truncate_outliers
+
+Basic Statistics
+----------------
+.. autofunction:: muarch.funcs.moments.get_annualized_mean
+.. autofunction:: muarch.funcs.moments.get_annualized_sd
+.. autofunction:: muarch.funcs.moments.get_annualized_skew
+.. autofunction:: muarch.funcs.moments.get_annualized_kurtosis

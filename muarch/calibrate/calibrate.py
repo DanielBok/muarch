@@ -3,13 +3,14 @@ from typing import Iterable, Optional, Union
 
 import numpy as np
 
+from muarch.funcs.time_unit import get_integer_time_unit
 from ._calibrate_both import calibrate_mean_and_sd
 from ._calibrate_mean import calibrate_mean_only
 from ._calibrate_sd import calibrate_sd_only
 
 
 def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd: Optional[Iterable[float]] = None,
-                   time_unit: Union[int, str] = 12, inplace=False) -> np.ndarray:
+                   time_unit: Union[int, str] = "month", inplace=False) -> np.ndarray:
     """
     Calibrates the data given the target mean and standard deviation.
 
@@ -24,7 +25,7 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
     sd: iterable float, optional
         The target annual standard deviation (volatility) vector
 
-    time_unit: int, optional
+    time_unit: int or str
         Specifies how many units (first axis) is required to represent a year. For example, if each time period
         represents a month, set this to 12. If quarterly, set to 4. Defaults to 12 which means 1 period represents
         a month. Alternatively, you could put in a string name of the time_unit. Accepted values are weekly,
@@ -40,7 +41,7 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
         An instance of the adjusted numpy tensor
     """
     assert not np.isnan(data).any(), "data cube must not have nan values"
-    time_unit = _get_integer_time_unit(time_unit)
+    time_unit = get_integer_time_unit(time_unit)
 
     if not inplace:
         data = deepcopy(data)
@@ -55,21 +56,3 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
         return calibrate_sd_only(data, np.asarray(sd), time_unit)
 
     return data  # no adjustments
-
-
-def _get_integer_time_unit(time_unit: Union[int, str]):
-    if isinstance(time_unit, int):
-        return time_unit
-    if isinstance(time_unit, str):
-        if time_unit.lower() in ('week', 'weekly'):
-            return 52
-        if time_unit.lower() in ('month', 'monthly'):
-            return 12
-        if time_unit.lower() in ('quarter', 'quarterly'):
-            return 4
-        if time_unit.lower() in ('semi-annual', 'semi-annually'):
-            return 2
-        if time_unit.lower() in ('annual', 'annually', 'year', 'yearly'):
-            return 1
-
-    raise ValueError(f"Unacceptable time_unit argument, {time_unit}")
