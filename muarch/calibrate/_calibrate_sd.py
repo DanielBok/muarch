@@ -42,7 +42,7 @@ class AssetSD:
         return ((self.data * x + 1).reshape(shape).prod(1) - 1).std(1).mean() - self.target
 
     def calc_best_guess(self):
-        space = 2 ** np.linspace(-15, 6, 150)
+        space = 2 ** np.linspace(-15, 6, 30)
         f_space = np.array([self.annualized_sd(x) for x in space])
         mask = (f_space[:-1] * f_space[1:]) <= 0
 
@@ -51,7 +51,3 @@ class AssetSD:
 
         index = np.argmin(np.abs(f_space[:-1] - f_space[1:])[mask])  # index with best root character
         return space[:-1][mask][index], space[1:][mask][index]
-
-
-def _call(f):
-    return f()

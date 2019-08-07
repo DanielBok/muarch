@@ -49,7 +49,7 @@ class AssetMeanAndSD:
         return ((data + 1).reshape(self.years, self.time_unit, self.trials).prod(1) - 1).std(1).mean() - self.target_sd
 
     def calc_best_guess_mean(self):
-        space = 2 ** np.linspace(-15, 4, 75)
+        space = 2 ** np.linspace(-15, 4, 20)
         space = np.sort([*-space, *space])
 
         f_space = np.array([self.annualized_mean(self.data + x) for x in space])
@@ -62,7 +62,7 @@ class AssetMeanAndSD:
         return (space[:-1][mask][index] + space[1:][mask][index]) / 2
 
     def calc_best_guess_sd(self):
-        space = 2 ** np.linspace(-15, 6, 150)
+        space = 2 ** np.linspace(-15, 6, 30)
 
         f_space = np.array([self.annualized_sd(self.data * x) for x in space])
         mask = (f_space[:-1] * f_space[1:]) <= 0

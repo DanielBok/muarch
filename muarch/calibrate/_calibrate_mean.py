@@ -38,7 +38,7 @@ class AssetMean:
         return (np.sign(d) * np.abs(d) ** (1 / self.years)).mean() - 1 - self.target
 
     def calc_best_guess(self):
-        space = 2 ** np.linspace(-15, 4, 75)
+        space = 2 ** np.linspace(-15, 4, 20)
         space = np.sort([*-space, *space])
 
         f_space = np.array([self.annualized_mean(x) for x in space])
@@ -49,7 +49,3 @@ class AssetMean:
 
         index = np.argmin(np.abs(f_space[:-1] - f_space[1:])[mask])  # index with best root character
         return space[:-1][mask][index], space[1:][mask][index]
-
-
-def _call(f):
-    return f()
