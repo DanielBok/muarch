@@ -11,7 +11,7 @@ def calibrate_mean_and_sd(data: np.ndarray, mean: np.ndarray, sd: np.ndarray, ti
     sol = get_solutions(data, time_unit, mean, sd)
 
     for i in range(data.shape[2]):
-        if sol[i, 0] > 0 and np.isfinite(sol[i]).all():
+        if sol[i, 1] > 0 and np.isfinite(sol[i]).all():
             data[..., i] = data[..., i] * sol[i, 1] + sol[i, 0]
 
     return data
@@ -51,20 +51,18 @@ class AssetMeanAndSD:
     def calc_best_guess_mean(self):
         space = 2 ** np.linspace(-15, 4, 20)
         space = np.sort([*-space, *space])
-
         f_space = np.array([self.annualized_mean(self.data + x) for x in space])
-        mask = (f_space[:-1] * f_space[1:]) <= 0
 
-        if not np.any(mask):
-            raise RuntimeError("Unable to find roots")
-
-        index = np.argmin(np.abs(f_space[:-1] - f_space[1:])[mask])  # index with best root character
-        return (space[:-1][mask][index] + space[1:][mask][index]) / 2
+        return self._best_guess_common(space, f_space)
 
     def calc_best_guess_sd(self):
         space = 2 ** np.linspace(-15, 6, 30)
-
         f_space = np.array([self.annualized_sd(self.data * x) for x in space])
+
+        return self._best_guess_common(space, f_space)
+
+    @staticmethod
+    def _best_guess_common(space: np.ndarray, f_space: np.ndarray):
         mask = (f_space[:-1] * f_space[1:]) <= 0
 
         if not np.any(mask):
@@ -72,7 +70,3 @@ class AssetMeanAndSD:
 
         index = np.argmin(np.abs(f_space[:-1] - f_space[1:])[mask])  # index with best root character
         return (space[:-1][mask][index] + space[1:][mask][index]) / 2
-
-
-def _call(f):
-    return f()
