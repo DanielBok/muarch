@@ -3,6 +3,7 @@ from typing import Iterable, Optional, Union
 
 import numpy as np
 
+from muarch.funcs.moments import get_annualized_mean, get_annualized_sd
 from muarch.funcs.time_unit import get_integer_time_unit
 from ._calibrate_both import calibrate_mean_and_sd
 from ._calibrate_mean import calibrate_mean_only
@@ -10,7 +11,7 @@ from ._calibrate_sd import calibrate_sd_only
 
 
 def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd: Optional[Iterable[float]] = None,
-                   time_unit: Union[int, str] = "month", inplace=False) -> np.ndarray:
+                   time_unit: Union[int, str] = "month", inplace=False, tol=6) -> np.ndarray:
     """
     Calibrates the data given the target mean and standard deviation.
 
@@ -35,6 +36,10 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
         If True, calibration will modify the original data. Otherwise, a deep copy of the original data will be
         made before calibration. Deep copy can be time consuming if data is big.
 
+    tol: int
+        Tolerance used to determine if calibrate should be called. For example, if the cube's target annualized
+        mean is similar to the actual tolerance, function will skip the mean adjustment.
+
     Returns
     -------
     ndarray
@@ -46,6 +51,17 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
     if not inplace:
         data = deepcopy(data)
 
+    mean = _set_to_none_if_close(mean, get_annualized_mean(data, time_unit))
+    sd = _set_to_none_if_close(sd, get_annualized_sd(data, time_unit))
+
+    return _calibrate(data, mean, sd, time_unit)
+
+
+def _set_to_none_if_close(actual: Optional[np.ndarray], target: np.ndarray, tol=6):
+    return None if actual is None or np.isclose(actual, target, atol=tol) else np.asarray(actual)
+
+
+def _calibrate(data: np.ndarray, mean: Optional[np.ndarray], sd: Optional[np.ndarray], time_unit: int):
     if mean is not None and sd is not None:
         return calibrate_mean_and_sd(data, np.asarray(mean), np.asarray(sd), time_unit)
 
