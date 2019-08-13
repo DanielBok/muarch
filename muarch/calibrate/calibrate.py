@@ -11,7 +11,7 @@ from ._calibrate_sd import calibrate_sd_only
 
 
 def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd: Optional[Iterable[float]] = None,
-                   time_unit: Union[int, str] = "month", inplace=False, tol=6) -> np.ndarray:
+                   time_unit: Union[int, str] = "month", inplace=False, tol=1e-6) -> np.ndarray:
     """
     Calibrates the data given the target mean and standard deviation.
 
@@ -51,14 +51,14 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
     if not inplace:
         data = deepcopy(data)
 
-    mean = _set_to_none_if_close(mean, get_annualized_mean(data, time_unit))
-    sd = _set_to_none_if_close(sd, get_annualized_sd(data, time_unit))
+    mean = _set_to_none_if_close(mean, get_annualized_mean(data, time_unit), tol)
+    sd = _set_to_none_if_close(sd, get_annualized_sd(data, time_unit), tol)
 
     return _calibrate(data, mean, sd, time_unit)
 
 
-def _set_to_none_if_close(actual: Optional[np.ndarray], target: np.ndarray, tol=6):
-    return None if actual is None or np.isclose(actual, target, atol=tol) else np.asarray(actual)
+def _set_to_none_if_close(actual: Optional[np.ndarray], target: np.ndarray, tol):
+    return None if actual is None or np.isclose(actual, target, atol=tol).all() else np.asarray(actual)
 
 
 def _calibrate(data: np.ndarray, mean: Optional[np.ndarray], sd: Optional[np.ndarray], time_unit: int):
