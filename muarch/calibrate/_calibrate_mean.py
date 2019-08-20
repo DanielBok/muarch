@@ -38,9 +38,8 @@ class RootFinder:
 
     def initial_guess(self, target: float):
         def get_by_bisection():
-            index = np.argmin(np.abs(f_space[:-1] - f_space[1:])[mask])  # index with best root character
-            a, b = space[:-1][mask][index], space[1:][mask][index]
-            return (a + b) / 2
+            i = np.argmin(np.abs(f_space[:-1] - f_space[1:])[mask])  # index with best root character
+            return (space[:-1][mask][i] + space[1:][mask][i]) / 2
 
         def get_closest_to_0():
             return float(space[np.argmin(np.abs(f_space))])
