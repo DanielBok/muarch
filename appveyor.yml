@@ -61,6 +61,6 @@ build_script:
 test_script:
   - pytest --no-cov tests/
 
-artifacts:
-  - path: dist\*
-    name: pypi artifacts
+#artifacts:
+#  - path: dist\*
+#    name: pypi artifacts
