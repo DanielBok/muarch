@@ -36,7 +36,7 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
         If True, calibration will modify the original data. Otherwise, a deep copy of the original data will be
         made before calibration. Deep copy can be time consuming if data is big.
 
-    tol: int
+    tol: float
         Tolerance used to determine if calibrate should be called. For example, if the cube's target annualized
         mean is similar to the actual tolerance, function will skip the mean adjustment.
 
@@ -54,19 +54,19 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
     mean = _set_to_none_if_close(mean, get_annualized_mean(data, time_unit), tol)
     sd = _set_to_none_if_close(sd, get_annualized_sd(data, time_unit), tol)
 
-    return _calibrate(data, mean, sd, time_unit)
+    return _calibrate(data, mean, sd, time_unit, tol)
 
 
 def _set_to_none_if_close(actual: Optional[np.ndarray], target: np.ndarray, tol):
     return None if actual is None or np.isclose(actual, target, atol=tol).all() else np.asarray(actual)
 
 
-def _calibrate(data: np.ndarray, mean: Optional[np.ndarray], sd: Optional[np.ndarray], time_unit: int):
+def _calibrate(data: np.ndarray, mean: Optional[np.ndarray], sd: Optional[np.ndarray], time_unit: int, tol: float):
     if mean is not None and sd is not None:
         return calibrate_mean_and_sd(data, np.asarray(mean), np.asarray(sd), time_unit)
 
     if mean is not None and sd is None:
-        return calibrate_mean_only(data, np.asarray(mean), time_unit)
+        return calibrate_mean_only(data, np.asarray(mean), time_unit, tol)
 
     if mean is None and sd is not None:
         return calibrate_sd_only(data, np.asarray(sd), time_unit)
