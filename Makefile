@@ -6,7 +6,13 @@ CURDIR := $(shell pwd)
 all: clean dist linux-wheel
 
 clean:
-	rm -rf .eggs .coverage build dist/* htmlcov *.egg-info
+	rm -rf .eggs .coverage build dist/* htmlcov *.egg-info docs/build/*
+
+	# delete cython linker files
+	find . -type f -name '*.pyd' -delete
+
+	# delete pytest coverage file
+	find . -type f -name '*.coverage' -print
 
 conda:
 	conda build --output-folder dist conda.recipe

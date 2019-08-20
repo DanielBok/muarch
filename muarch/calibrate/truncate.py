@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy as np
 
 
-def truncate_outliers(data: np.ndarray, sd=0, replacement='mean', inplace=False):
+def truncate_outliers(data: np.ndarray, sd=0, replacement='mean', inplace=False):  # pragma: no cover
     """
     Truncates outliers by replacing it with the mean, median or a specified value.
 
