@@ -57,7 +57,7 @@ def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd:
     return _calibrate(data, mean, sd, time_unit, tol)
 
 
-def _set_to_none_if_close(actual: Optional[np.ndarray], target: np.ndarray, tol):
+def _set_to_none_if_close(actual: Optional[np.ndarray], target: np.ndarray, tol: float):
     return None if actual is None or np.isclose(actual, target, atol=tol).all() else np.asarray(actual)
 
 
@@ -69,6 +69,6 @@ def _calibrate(data: np.ndarray, mean: Optional[np.ndarray], sd: Optional[np.nda
         return calibrate_mean_only(data, np.asarray(mean), time_unit, tol)
 
     if mean is None and sd is not None:
-        return calibrate_sd_only(data, np.asarray(sd), time_unit)
+        return calibrate_sd_only(data, np.asarray(sd), time_unit, tol)
 
     return data  # no adjustments
