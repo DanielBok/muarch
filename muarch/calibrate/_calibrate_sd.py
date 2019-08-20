@@ -2,7 +2,7 @@ import numpy as np
 import scipy.optimize as opt
 from muarch.funcs import get_annualized_sd
 
-from ._calibrate_utils import get_data_shape, validate_target_sd
+from ._calibrate_utils import validate_target_sd
 
 
 def calibrate_sd_only(data: np.ndarray, sd: np.ndarray, time_unit: int, tol=1e-6):
@@ -24,12 +24,10 @@ class RootFinder:
         assert data.ndim == 2
         self.data = data
         self.time_unit = time_unit
-        self.years, self.trials = get_data_shape(data, time_unit)
         self.tol = tol
 
     def annualized_sd(self, x: float, target: float):
-        shape = self.years, self.time_unit, self.data.shape[-1]
-        return ((self.data * x + 1).reshape(shape).prod(1) - 1).std(1).mean() - target
+        return get_annualized_sd(self.data * x, self.time_unit) - target
 
     def annualized_sd_der(self, x: float, target: float):
         return (self.annualized_sd(x + self.tol, target) -

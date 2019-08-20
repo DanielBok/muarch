@@ -1,7 +1,8 @@
 import numpy as np
 import scipy.optimize as opt
 
-from ._calibrate_utils import get_data_shape, validate_target_mean
+from muarch.funcs import get_annualized_mean
+from ._calibrate_utils import validate_target_mean
 
 
 def calibrate_mean_only(data: np.ndarray, mean: np.ndarray, time_unit: int, tol=1e-6):
@@ -19,12 +20,10 @@ class RootFinder:
         assert data.ndim == 2
         self.data = data
         self.time_unit = time_unit
-        self.years, _ = get_data_shape(data, time_unit)
         self.tol = tol
 
     def annualized_mean(self, x: float, target: float):
-        d = (self.data + x + 1).prod(0)
-        return (np.sign(d) * np.abs(d) ** (1 / self.years)).mean() - 1 - target
+        return get_annualized_mean(self.data + x) - target
 
     def annualized_mean_der(self, x: float, target: float):
         return (self.annualized_mean(x + self.tol, target) -
