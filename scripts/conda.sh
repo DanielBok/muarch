@@ -19,7 +19,7 @@ conda config --prepend channels conda-forge
 conda config --append channels bashtage
 conda update --all --quiet
 
-conda create -n build_env python=${PY_VER} arch conda-build cython numpy pandas scipy statsmodels
+conda create -n build_env python=${PY_VER} conda-build cython numpy ripgrep scipy
 source activate build_env
 
 conda build --output-folder dist conda.recipe
