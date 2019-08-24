@@ -23,7 +23,7 @@ class RootFinder:
         self.tol = tol
 
     def annualized_mean(self, x: float, target: float):
-        return get_annualized_mean(self.data + x) - target
+        return get_annualized_mean(self.data + x, self.time_unit) - target
 
     def annualized_mean_der(self, x: float, target: float):
         return (self.annualized_mean(x + self.tol, target) -
