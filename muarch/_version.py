@@ -47,8 +47,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = ""
     cfg.tag_prefix = ""
-    cfg.parentdir_prefix = "allopy-"
-    cfg.versionfile_source = "allopy/_version.py"
+    cfg.parentdir_prefix = "muarch-"
+    cfg.versionfile_source = "muarch/_version.py"
     cfg.verbose = False
     return cfg
 
