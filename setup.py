@@ -71,11 +71,6 @@ def build_ext_modules():
     return cythonize(extensions, compiler_directives=directives)
 
 
-setup_requires = [
-    'cython >=0.29',
-    'numpy >=1.15'
-]
-
 install_requires = [
     'arch >=4.7',
     'copulae >=0.4.0',
@@ -115,7 +110,6 @@ setup(
         'Topic :: Scientific/Engineering',
     ],
     install_requires=install_requires,
-    setup_requires=setup_requires,
     python_requires='>=3.6',
     include_package_data=True,
     zip_safe=False
