@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 # Used for building manylinux wheels
 
-for PY_VER in "36" "37"; do \
-    "/opt/python/cp${PY_VER}-cp${PY_VER}m/bin/pip" install cython
-    "/opt/python/cp${PY_VER}-cp${PY_VER}m/bin/pip" wheel /muarch -w /wheelhouse
+for PY_VER in "36" "37" "38"; do \
+    if [[ $PY_VER = "38" ]]; then
+      INNER_VER="38"
+    else
+      INNER_VER=${PY_VER}m
+    fi
+
+    "/opt/python/cp${PY_VER}-cp${INNER_VER}/bin/pip" install cython numpy
+    "/opt/python/cp${PY_VER}-cp${INNER_VER}/bin/pip" wheel /muarch -w /wheelhouse
 done;
 
 mkdir -p /muarch/dist

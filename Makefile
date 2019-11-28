@@ -7,12 +7,8 @@ all: clean dist linux-wheel
 
 clean:
 	rm -rf .eggs .coverage build dist/* htmlcov *.egg-info docs/build/*
+	@python scripts/clean_project.py
 
-	# delete cython linker files
-	find . -type f -name '*.pyd' -delete
-
-	# delete pytest coverage file
-	find . -type f -name '*.coverage' -print
 
 conda:
 	conda build --output-folder dist conda.recipe
@@ -28,7 +24,7 @@ ext:
 	python setup.py build_ext --inplace
 
 linux-wheel:
-	docker run --rm -it -v $(CURDIR):/muarch danielbok/manylinux2010_x86_64 /muarch/scripts/linux.sh
+	docker run --rm -it -v $(CURDIR):/muarch danielbok/manylinux1_x86_64 /muarch/scripts/linux.sh
 
 test:
 	python -m pytest tests/
@@ -38,3 +34,6 @@ m36:
 
 m37:
 	docker run --rm -it -v $(CURDIR):/muarch continuumio/miniconda3 bash /muarch/scripts/conda.sh 3.7
+
+m38:
+	docker run --rm -it -v $(CURDIR):/muarch continuumio/miniconda3 bash /muarch/scripts/conda.sh 3.8
