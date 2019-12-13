@@ -3,11 +3,11 @@
 PY_VER=${1:-3.7}
 
 case ${PY_VER} in
-    3.6 | 3.7)
+    3.6 | 3.7 | 3.8)
     echo "Building conda environment for Python ${PY_VER}"
     ;;
     *)
-    echo "Python version ${PY_VER} is not supported. Use 3.6 or 3.7"
+    echo "Python version ${PY_VER} is not supported. Use 3.6, 3.7 or 3.8"
     ;;
 esac
 
