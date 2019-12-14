@@ -9,8 +9,7 @@ source:
   path: ..
 
 build:
-  number: 0
-  string: py{{ CONDA_PY }}
+  number: 1
   script: python setup.py install --single-version-externally-managed --record=record.txt
 
 requirements:

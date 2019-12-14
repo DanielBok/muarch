@@ -1,5 +1,5 @@
 OUTPUT_DIR := dist
-CURDIR := $(shell pwd)
+
 
 .PHONY:	clean dist dist-wheel ext test
 
