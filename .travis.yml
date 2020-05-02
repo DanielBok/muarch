@@ -14,19 +14,10 @@ env:
 
 matrix:
   include:
-    - python: "3.6"
-      os: osx
-      env:
-        - PYTHON: "3.6"
     - python: "3.7"
       os: osx
       env:
         - PYTHON: "3.7"
-    - python: "3.6"
-      os: linux
-      dist: xenial
-      env:
-        - PYTHON: "3.6"
     - python: "3.7"
       os: linux
       dist: xenial
@@ -58,13 +49,12 @@ before_install:
     fi
   - conda config --set always_yes true
   - conda config --prepend channels conda-forge
-  - conda config --append channels bashtage
   - conda config --set anaconda_upload yes
   - conda update --all --quiet
   - >-
     conda create -n build_env
     python=${PYTHON}
-    arch
+    arch-py
     coveralls
     cython
     matplotlib
@@ -72,8 +62,6 @@ before_install:
     pandas
     pytest
     pytest-cov
-    scipy
-    statsmodels
   - source activate build_env
 
 install:

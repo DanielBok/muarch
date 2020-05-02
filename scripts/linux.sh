@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Used for building manylinux wheels
 
-for PY_VER in "36" "37" "38"; do \
+for PY_VER in "37" "38"; do \
     if [[ $PY_VER = "38" ]]; then
       INNER_VER="38"
     else
