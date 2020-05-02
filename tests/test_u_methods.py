@@ -8,14 +8,14 @@ from muarch.datasets import load_etf
 from muarch.summary import Summary
 
 
-@pytest.fixture('module')
+@pytest.fixture(scope='module')
 def returns():
     return load_etf().iloc[:, 0]
 
 
-@pytest.fixture('module')
+@pytest.fixture(scope='module')
 def model(returns):
-    model = UArch('AR', dist='skewt')
+    model = UArch('AR', dist='skewt', scale=0.1)
     model.fit(returns)
     return model
 

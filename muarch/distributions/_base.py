@@ -1,6 +1,6 @@
 import functools
 from abc import ABC
-from typing import Optional
+from typing import Optional, Sized, Union
 
 import numpy as np
 
@@ -25,12 +25,11 @@ def _format_simulator(_simulate):
 
 class DistributionMixin(ABC):
     def __init__(self):
-        self._custom_dist: np.ndarray = None
+        self.custom_dist: Optional[np.ndarray] = None
 
-    def check_dist_size(self, size):
+    def derive_dist_size(self, size):
         """Checks that the size required for the simulation is within the generated custom dist bounds"""
-        if self.custom_dist is None:
-            raise ValueError(f'method should not be called when custom_dist is not specified')
+        assert self.custom_dist is not None, 'derive_dist_size should not be called when custom_dist is not specified'
 
         if len(self.custom_dist) < size:
             times = round(np.ceil(size / len(self.custom_dist) * 100) / 100, 2)
@@ -39,21 +38,27 @@ class DistributionMixin(ABC):
     @property
     def custom_dist(self) -> Optional[np.ndarray]:
         """
-        Optional density with fitted object from which to simulate
+        Optional density with fitted object from which to simulate. This "distribution" "replaces"
+        the standard distribution (errors) generated from the GARCH instance during forecast.
+        In essence, the error distributions could be generated from an external process, and then
+        using inverse CDF of the underlying distribution (i.e. Skew-T, Normal, etc.), recover the
+        GARCH forecasts during the simulation stage.
 
-        The custom.dist option allows for defining a custom density which exists in the users workspace with methods for “r” (sampling, e.g. rnorm) and “d” (density e.g. dnorm). It must take a single fit object as its second argument. Alternatively, custom.dist can take any name in the name slot (e.g.“sample”) and a matrix in the fit slot with dimensions equal to m.sim (columns) and n.sim (rows). It is understood that what is supplied are the standardized (0,1) innovations and not the unstandardized residuals. The usefulness of this becomes apparent when one is considering the copula-GARCH approach or the bootstrap method.
+        It is understood that what is supplied are the standardized (0,1) innovations and not the
+        unstandardized residuals. The usefulness of this becomes apparent when one is considering
+        the copula-GARCH approach or the bootstrap method.
 
         Returns
         -------
-        {ndarray, None}
+        ndarray
             Array of density values or None
         """
         return self._custom_dist
 
     @custom_dist.setter
-    def custom_dist(self, values: Optional[np.ndarray]):
+    def custom_dist(self, values: Optional[Union[np.ndarray, float]]):
         if values is None:
             self._custom_dist = None
         else:
-            values = np.asarray(values)
-            self._custom_dist = float(values) if values.size == 1 else values
+            assert isinstance(values, Sized), "custom_dist should be an array"
+            self._custom_dist = np.asarray(values)

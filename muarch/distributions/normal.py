@@ -19,7 +19,7 @@ class Normal(N, DistributionMixin):
             return self._random_state.standard_normal(size)
 
         else:
-            self.check_dist_size(size)
+            self.derive_dist_size(size)
             ppf = norm.ppf(self.custom_dist[:size])
             self.custom_dist = None  # reset simulator
 

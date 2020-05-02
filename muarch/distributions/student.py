@@ -21,7 +21,7 @@ class StudentsT(T, DistributionMixin):
                 size = size, reps
             return self._random_state.standard_t(nu, size=size) / std_dev
         else:
-            self.check_dist_size(size)
+            self.derive_dist_size(size)
             ppf = self.ppf(self.custom_dist[:size], nu)
             self.custom_dist = None  # reset simulator
 

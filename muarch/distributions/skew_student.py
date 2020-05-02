@@ -19,8 +19,8 @@ class SkewStudent(DistributionMixin, SS):
                 size = size, reps
             return self.ppf(uniform.rvs(size=size), self._parameters)
         else:
-            self.check_dist_size(size)
-            ppf = self.ppf(self.custom_dist[:size], nu)
+            self.derive_dist_size(size)
+            ppf = self.ppf(self.custom_dist[:size], self._parameters)
             self.custom_dist = None  # reset simulator
 
             return ppf

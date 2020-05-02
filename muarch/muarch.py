@@ -1,5 +1,4 @@
 import os
-from collections import abc
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from typing import Iterable, List, Optional, Union
@@ -104,9 +103,9 @@ class MUArch:
             Global default factor to scale data up or down by. This is useful when your data is too small leading to
             numerical errors when fitting. It will be used to scale simulation data
         """
-        super(MUArch, self).__init__()
+        super().__init__()
 
-        if isinstance(n, abc.Iterable):
+        if isinstance(n, Iterable):
             self.__models = list(n)
             self.__n = len(self.__models)
 
@@ -381,7 +380,6 @@ class MUArch:
         simulated_data : numpy array
             Array containing simulated data from the Monte Carlo Simulation
         """
-
         if not isinstance(reps, int) or reps < 1:
             raise ValueError('reps must be an integer greater than 0')
 
@@ -389,7 +387,7 @@ class MUArch:
         if n_jobs is None:
             n_jobs = 1
         elif not isinstance(n_jobs, int):
-            raise ValueError('`n_jobs` must be an integer')
+            raise ValueError('`n_jobs` must be an integer or None')
         else:
             n_jobs = min(os.cpu_count(), os.cpu_count() if n_jobs <= 0 else n_jobs)
 

@@ -27,7 +27,7 @@ class GeneralizedError(GE, DistributionMixin):
 
             return randoms / scale
         else:
-            self.check_dist_size(size * 2)
+            self.derive_dist_size(size * 2)
 
             nu, *_ = _parameters
 
