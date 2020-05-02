@@ -14,11 +14,10 @@ class SkewStudent(DistributionMixin, SS):
 
     @_format_simulator
     def _simulator(self, size: int, reps: Optional[int] = None) -> np.ndarray:
-        nu = self._parameters[0]  # degrees of freedom
         if self.custom_dist is None:
             if reps is not None:
                 size = size, reps
-            return self.ppf(uniform.rvs(size=size), nu)
+            return self.ppf(uniform.rvs(size=size), self._parameters)
         else:
             self.check_dist_size(size)
             ppf = self.ppf(self.custom_dist[:size], nu)
@@ -45,9 +44,7 @@ class SkewStudent(DistributionMixin, SS):
         icdf = -999.99 * np.ones_like(pits)
         icdf[cond] = icdf1
         icdf[~cond] = icdf2
-        icdf = (icdf *
-                (1 + np.sign(pits - (1 - lam) / 2) * lam) * (1 - 2 / eta) ** .5 -
-                a)
+        icdf = (icdf * (1 + np.sign(pits - (1 - lam) / 2) * lam) * (1 - 2 / eta) ** .5 - a)
         icdf = icdf / b
 
         if scalar:
