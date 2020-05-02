@@ -8,7 +8,7 @@ from .distributions import GeneralizedError, Normal, SkewStudent, StudentsT
 from .exceptions import NotFittedError
 from .mean import ARX, ConstantMean, HARX, LS, ZeroMean
 from .summary import Summary
-from .typings import CovType, Display, Params, RngGen
+from .typings import Params, RngGen
 from .volatility import ARCH, ConstantVariance, EGARCH, FIGARCH, GARCH, HARCH
 
 __all__ = ['UArch']
@@ -135,7 +135,7 @@ class UArch:
     def fitted_model(self, model: Optional[ARCHModelResult]):
         self._fitted = model
 
-    def fit(self, y, x=None, update_freq=1, disp: Display = 'off', starting_values=None, cov_type: CovType = 'robust',
+    def fit(self, y, x=None, update_freq=1, disp='off', starting_values=None, cov_type='robust',
             show_warning=True, first_obs=None, last_obs=None, tol=None, options=None, backcast=None):
         r"""
         Fits the model given a nobs by 1 vector of sigma2 values

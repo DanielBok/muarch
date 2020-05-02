@@ -8,7 +8,7 @@ import pandas as pd
 
 from .exceptions import EndogInputError, InvalidModelError
 from .summary import SummaryList
-from .typings import CovType, Display, Endog, Exog, RngGen
+from .typings import Endog, Exog, RngGen
 from .uarch import UArch
 
 
@@ -116,7 +116,7 @@ class MUArch:
         else:
             raise TypeError('`n` must either be an integer specifying the number of models or a list of UArch models')
 
-    def fit(self, y: Endog, x: Exog = None, update_freq=1, disp: Display = 'off', cov_type: CovType = 'robust',
+    def fit(self, y: Endog, x: Exog = None, update_freq=1, disp='off', cov_type='robust',
             show_warning=True, tol: float = None, options=None):
         """
         Fits the MUArch model.
