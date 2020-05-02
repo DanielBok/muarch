@@ -1,6 +1,5 @@
 {% set data = load_setup_py_data() %}
 
-
 package:
   name: muarch
   version: {{ data['version' ] }}
@@ -32,6 +31,8 @@ requirements:
 about:
   home: https://github.com/DanielBok/muarch
   license: MIT
+  license_family: MIT
+  license_file: LICENSE
   summary: Multiple Univariate ARCH modeling toolbox built on top of the ARCH package
   dev_url: https://github.com/DanielBok/muarch
   doc_url: https://muarch.rtfd.io
