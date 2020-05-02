@@ -1,6 +1,6 @@
 import functools
 from abc import ABC
-from typing import Optional, Sized, Union
+from typing import Collection, Optional, Union
 
 import numpy as np
 
@@ -14,11 +14,7 @@ def _format_simulator(_simulate):
             if not isinstance(reps, int) or reps <= 0:
                 raise ValueError('`reps` must be an integer greater than 0')
 
-        value = _simulate(self, size, reps)
-
-        if isinstance(value, (int, float)):
-            value = np.array([value], value)
-        return np.asarray(value)
+        return np.asarray(_simulate(self, size, reps))
 
     return decorator
 
@@ -60,5 +56,5 @@ class DistributionMixin(ABC):
         if values is None:
             self._custom_dist = None
         else:
-            assert isinstance(values, Sized), "custom_dist should be an array"
+            assert isinstance(values, Collection), "custom_dist should be an array"
             self._custom_dist = np.asarray(values)

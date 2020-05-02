@@ -2,18 +2,19 @@ from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
+from arch.univariate.base import ARCHModelResult
 
-from ._base import PARAMS, RNG_GEN, _ArchBase
 from .distributions import GeneralizedError, Normal, SkewStudent, StudentsT
 from .exceptions import NotFittedError
 from .mean import ARX, ConstantMean, HARX, LS, ZeroMean
 from .summary import Summary
+from .typings import CovType, Display, Params, RngGen
 from .volatility import ARCH, ConstantVariance, EGARCH, FIGARCH, GARCH, HARCH
 
 __all__ = ['UArch']
 
 
-class UArch(_ArchBase):
+class UArch:
     """
     Univariate ARCH model that wraps on top of Mean, Volatility and Distribution classes defined in the `arch` package.
     Mainly, this class combines the original model and fitted model in the `arch` package for convenience. It has also
@@ -94,8 +95,6 @@ class UArch(_ArchBase):
             when fitting. It will be used to scale simulation data
         """
 
-        super(UArch, self).__init__()
-
         known_mean = ('zero', 'constant', 'harx', 'har', 'ar', 'arx', 'ls')
         known_vol = ('arch', 'figarch', 'garch', 'harch', 'constant', 'egarch')
         known_dist = ('normal', 'gaussian', 'studentst', 't', 'skewstudent',
@@ -124,10 +123,20 @@ class UArch(_ArchBase):
             'dist': dist,
             'hold_back': hold_back
         }
-        self._form_model(None)
 
-    def fit(self, y, x=None, update_freq=1, disp='off', starting_values=None, cov_type='robust', show_warning=True,
-            first_obs=None, last_obs=None, tol=None, options=None, backcast=None):
+        self._model = self._form_model(None)
+        self.fitted_model = None
+
+    @property
+    def fitted_model(self):
+        return self._fitted
+
+    @fitted_model.setter
+    def fitted_model(self, model: Optional[ARCHModelResult]):
+        self._fitted = model
+
+    def fit(self, y, x=None, update_freq=1, disp: Display = 'off', starting_values=None, cov_type: CovType = 'robust',
+            show_warning=True, first_obs=None, last_obs=None, tol=None, options=None, backcast=None):
         r"""
         Fits the model given a nobs by 1 vector of sigma2 values
 
@@ -178,10 +187,9 @@ class UArch(_ArchBase):
         UArch
             Fitted UArch instance
         """
-        self._form_model(y, x)
-
-        self._fit_model = self._model.fit(update_freq, disp, starting_values, cov_type, show_warning, first_obs,
-                                          last_obs, tol, options, backcast)
+        self._model = self._form_model(y, x)
+        self.fitted_model = self._model.fit(update_freq, disp, starting_values, cov_type, show_warning, first_obs,
+                                            last_obs, tol, options, backcast)
         return self
 
     def forecast(self, params=None, horizon=1, start=None, align='origin', method='analytic',
@@ -257,7 +265,7 @@ class UArch(_ArchBase):
                 raise ValueError(f"`rng` array should have dimensions ({(simulations, horizon)})")
             rng = lambda _: rng
 
-        return self._fit_model.forecast(params, horizon, start, align, method, simulations, rng)
+        return self.fitted_model.forecast(params, horizon, start, align, method, simulations, rng)
 
     def hedgehog_plot(self, params=None, horizon=10, step=10, start=None, type_='volatility', method='analytic',
                       simulations=1000):
@@ -300,13 +308,13 @@ class UArch(_ArchBase):
         """
         if params is None:
             params = self.params
-        return self._fit_model.hedgehog_plot(params, horizon, step, start, type_, method, simulations)
+        return self.fitted_model.hedgehog_plot(params, horizon, step, start, type_, method, simulations)
 
     @property
     def params(self) -> pd.Series:
         """Model Parameters"""
         self._ensure_is_fitted()
-        return self._fit_model.params
+        return self.fitted_model.params
 
     def residual_plot(self, annualize=None, scale=None):
         """
@@ -327,7 +335,8 @@ class UArch(_ArchBase):
         figure
             Handle to the figure
         """
-        return self._fit_model.plot(annualize, scale)
+        self._ensure_is_fitted()
+        return self.fitted_model.plot(annualize, scale)
 
     def residuals(self, standardize=True) -> np.ndarray:
         """
@@ -343,12 +352,12 @@ class UArch(_ArchBase):
         ndarray
             Residuals
         """
-        model = self._fit_model
+        self._ensure_is_fitted()
         lags = self._model_setup['lags']
-        r = np.asarray(model.resid) / self._scale
+        r = np.asarray(self.fitted_model.resid) / self._scale
 
         if standardize:
-            r /= model.conditional_volatility
+            r /= self.fitted_model.conditional_volatility
         return r[lags:]
 
     def simulate(self,
@@ -358,8 +367,8 @@ class UArch(_ArchBase):
                  x: Optional[Union[np.ndarray, pd.DataFrame]] = None,
                  initial_value_vol: Union[np.ndarray, float] = None,
                  data_only=False,
-                 params: PARAMS = None,
-                 custom_dist: Optional[Union[RNG_GEN, np.ndarray]] = None) -> Union[pd.DataFrame, np.ndarray]:
+                 params: Params = None,
+                 custom_dist: Optional[Union[RngGen, np.ndarray]] = None) -> Union[pd.DataFrame, np.ndarray]:
         """
         Simulates data from a ARMA-GARCH model
 
@@ -422,8 +431,8 @@ class UArch(_ArchBase):
                     initial_value: Union[np.ndarray, float] = None,
                     x: Optional[Union[np.ndarray, pd.DataFrame]] = None,
                     initial_value_vol: Union[np.ndarray, float] = None,
-                    params: PARAMS = None,
-                    custom_dist: Optional[Union[RNG_GEN, np.ndarray]] = None) -> Union[pd.DataFrame, np.ndarray]:
+                    params: Params = None,
+                    custom_dist: Optional[Union[RngGen, np.ndarray]] = None) -> Union[pd.DataFrame, np.ndarray]:
         """
         Simulates data from a ARMA-GARCH model with multiple repetitions.
 
@@ -488,6 +497,28 @@ class UArch(_ArchBase):
 
         return self._model.simulate_mc(params, nobs, reps, burn, initial_value, x, initial_value_vol) / self._scale
 
+    def simulation_horizon(self, nobs: int, burn: int):
+        """
+        Calculates the number of random generations needed for simulation
+
+        Parameters
+        ----------
+        nobs: int
+            number of observations
+
+        burn: int
+            number of observations burnt in simulation
+
+        Returns
+        -------
+        int
+            number of random generations required
+        """
+        num = nobs + burn * 2
+        if self._model.distribution.__class__.__name__ == 'GeneralizedError':
+            num *= 2
+        return num
+
     def summary(self, short=False, dp=4) -> Union[pd.Series, Summary]:
         """
         Summary of fitted model
@@ -507,19 +538,19 @@ class UArch(_ArchBase):
         """
         self._ensure_is_fitted()
         if short:
-            params = self._fit_model.params.round(dp)
-            se = self._fit_model.std_err.round(dp)
+            params = self.fitted_model.params.round(dp)
+            se = self.fitted_model.std_err.round(dp)
             return pd.Series(['{p:.{dp}f} ± {s:.{dp}f}'.format(p=p, s=se[i], dp=dp) for i, p in enumerate(params)],
                              index=params.index)
         else:
-            return Summary(self._fit_model.summary())
+            return Summary(self.fitted_model.summary())
 
     def _ensure_is_fitted(self):
         """Ensures model is fitted. Else raises error"""
-        if self._fit_model is None:
-            raise NotFittedError(f"This ArchModel instance is not fitted yet")
+        if self.fitted_model is None:
+            raise NotFittedError
 
-    def _form_model(self, y, x=None):
+    def _form_model(self, y, x=None) -> Union[HARX, ARX, ConstantMean, LS, ZeroMean]:
         """
         Forms the actual ARCH model. This is a convenience method so that users can specify data at run time
         instead of at class instantiation
@@ -580,13 +611,13 @@ class UArch(_ArchBase):
 
         am.volatility = v
         am.distribution = d
-        self._model = am
+        return am
 
     def __model_description__(self, include_lags=True, include_fitted_stats=False):
         """Generates the model description for use by __str__ and related functions"""
         desc = self._model._model_description(include_lags)
 
-        if self._fit_model is not None and include_fitted_stats:
+        if self.fitted_model is not None and include_fitted_stats:
             pass
 
         return desc
@@ -603,7 +634,7 @@ class UArch(_ArchBase):
         return html
 
     def _set_custom_dist(self, custom_dist, nobs, burn, reps=None):
-        horizon = self.simulation_horizon_required(nobs, burn)
+        horizon = self.simulation_horizon(nobs, burn)
         if isinstance(reps, int):  # for monte carlo
             size = horizon, reps
         else:

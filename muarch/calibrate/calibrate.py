@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Iterable, Optional, Union
+from typing import Collection, Optional, Union
 
 import numpy as np
 
@@ -10,7 +10,7 @@ from ._calibrate_mean import calibrate_mean_only
 from ._calibrate_sd import calibrate_sd_only
 
 
-def calibrate_data(data: np.ndarray, mean: Optional[Iterable[float]] = None, sd: Optional[Iterable[float]] = None,
+def calibrate_data(data: np.ndarray, mean: Optional[Collection[float]] = None, sd: Optional[Collection[float]] = None,
                    time_unit: Union[int, str] = "month", inplace=False, tol=1e-6) -> np.ndarray:
     """
     Calibrates the data given the target mean and standard deviation.

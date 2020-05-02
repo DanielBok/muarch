@@ -1,16 +1,15 @@
 import os
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
-from typing import Iterable, List, Optional, Union
+from typing import Collection, Optional, Union
 
 import numpy as np
 import pandas as pd
 
-from ._base import RNG_GEN
+from .exceptions import EndogInputError, InvalidModelError
 from .summary import SummaryList
+from .typings import CovType, Display, Endog, Exog, RngGen
 from .uarch import UArch
-
-Exog = Optional[Union[List[Union[None, np.ndarray]], np.ndarray]]
 
 
 class MUArch:
@@ -19,10 +18,7 @@ class MUArch:
     Any simulations returns simulations of each univariate series column bound together.
     """
 
-    __n: int
-    __models: List[UArch]
-
-    def __init__(self, n: Union[int, Iterable[UArch]], mean='Constant', lags=0, vol='GARCH', p=1, o=0, q=1, power=2.0,
+    def __init__(self, n: Union[int, Collection[UArch]], mean='Constant', lags=0, vol='GARCH', p=1, o=0, q=1, power=2.0,
                  dist='Normal', hold_back=None, scale=1):
         r"""
         Initializes the MUArch model.
@@ -103,28 +99,25 @@ class MUArch:
             Global default factor to scale data up or down by. This is useful when your data is too small leading to
             numerical errors when fitting. It will be used to scale simulation data
         """
-        super().__init__()
+        if isinstance(n, Collection):
+            self._models = list(n)
 
-        if isinstance(n, Iterable):
-            self.__models = list(n)
-            self.__n = len(self.__models)
+            assert len(self) != 0, "If passing in a list of UArch models, list cannot be empty!"
 
-            assert self.__n != 0, "If passing in a list of UArch models, list cannot be empty!"
+            for i, m in enumerate(self._models):
+                if not isinstance(m, UArch):
+                    raise InvalidModelError(i)
 
-            for i, m in enumerate(self.__models):
-                assert isinstance(m, UArch), f'The model in index {i} must be an instance of UArch'
+            self._model_names = [str(i) for i in range(len(self))]
 
-            self._model_names = [str(i) for i in range(self.__n)]
-
-        elif type(n) is int:
-            self.__n = n
-            self.__models = [UArch(mean, lags, vol, p, o, q, power, dist, hold_back, scale) for _ in range(n)]
+        elif isinstance(n, int):
+            self._models = [UArch(mean, lags, vol, p, o, q, power, dist, hold_back, scale) for _ in range(n)]
             self._model_names = [str(i) for i in range(n)]
         else:
             raise TypeError('`n` must either be an integer specifying the number of models or a list of UArch models')
 
-    def fit(self, y: Union[pd.DataFrame, np.ndarray], x: Exog = None, update_freq=1, disp='off', cov_type='robust',
-            show_warning=True, tol=None, options=None):
+    def fit(self, y: Endog, x: Exog = None, update_freq=1, disp: Display = 'off', cov_type: CovType = 'robust',
+            show_warning=True, tol: float = None, options=None):
         """
         Fits the MUArch model.
 
@@ -167,22 +160,19 @@ class MUArch:
         MUArch
             Fitted self instance
         """
+        if y.ndim == 1:
+            y = np.tile(y, len(self))
 
-        if y.shape[1] != self.__n:  # checks on input data
-            raise ValueError("number of columns in data 'y' does not match expected dimension of MUArch object")
+        if y.shape[1] != len(self) or y.ndim > 2:  # checks on input data
+            raise EndogInputError
 
         if isinstance(y, pd.DataFrame):  # setting names for params later
             self._model_names = list(y.columns)
             y = y.values
         else:
-            self._model_names = [str(i) for i in range(self.__n)]
+            self._model_names = [str(i) for i in range(len(self))]
 
-        if y.ndim == 1:
-            y = np.tile(y, self.__n)
-        elif y.ndim > 2:
-            raise ValueError("Dependent variable `y` must either be 1 or 2 dimensional")
-
-        for i in range(self.__n):
+        for i in range(len(self)):
             yy = y[:, i]
             xx = x[i] if x is not None else None
             if xx is not None:
@@ -228,7 +218,7 @@ class MUArch:
                  x=None,
                  initial_value_vol=None,
                  data_only=True,
-                 custom_dist: Optional[Union[RNG_GEN, np.ndarray]] = None):
+                 custom_dist: Optional[Union[RngGen, np.ndarray]] = None):
         """
         Simulates data from the multiple ARMA-GARCH models
 
@@ -297,7 +287,7 @@ class MUArch:
                                                                                               custom_dist)
 
         sims = []
-        for i in range(self.__n):
+        for i in range(len(self)):
             r = custom_dist[..., i] if custom_dist is not None else None
             xx = x[i]
             iv = initial_value[i]
@@ -317,7 +307,7 @@ class MUArch:
                     initial_value=None,
                     x=None,
                     initial_value_vol=None,
-                    custom_dist: Optional[Union[RNG_GEN, np.ndarray]] = None,
+                    custom_dist: Optional[Union[RngGen, np.ndarray]] = None,
                     n_jobs: Optional[int] = None):
         """
         Simulates data from the multiple ARCH-GARCH models.
@@ -401,7 +391,7 @@ class MUArch:
 
         # formulate function calls to get simulated data
         functions = []
-        for i in range(self.__n):
+        for i in range(len(self)):
             r = custom_dist[..., i] if custom_dist is not None else None
             xx = x[i]
             iv = initial_value[i]
@@ -412,7 +402,7 @@ class MUArch:
 
         # switch between sequential and multiprocessing
         if n_jobs == 1:  # sequential
-            sims = np.zeros((nobs, reps, self.__n))
+            sims = np.zeros((nobs, reps, len(self)))
             for i, func in enumerate(functions):
                 sims[:, :, i] = func()
 
@@ -460,23 +450,23 @@ class MUArch:
 
         # Format initial value
         if initial_value is None or isinstance(initial_value, (float, int)):
-            initial_value = np.asarray([initial_value] * self.__n)
+            initial_value = np.asarray([initial_value] * len(self))
 
         # Format initial volatility value
         if initial_value_vol is None or isinstance(initial_value, (float, int)):
-            initial_value_vol = np.asarray([initial_value_vol] * self.__n)
+            initial_value_vol = np.asarray([initial_value_vol] * len(self))
 
         # Format exogenous regressors
         if x is not None:
             if isinstance(x, np.ndarray):
                 assert x.ndim == 3, ("If numpy array passed in as MUArch `x` (exog), make sure it is a 3 "
                                      "dimensional array where the last dimension is the number of elements")
-                x = [x[i] for i in range(self.__n)]
+                x = [x[i] for i in range(len(self))]
             else:
                 x = list(x)
 
-                assert len(x) == self.__n, ("Exogenous variable's list should have the same number of elements as the "
-                                            "number of models")
+                assert len(x) == len(self), ("Exogenous variable's list should have the same number of elements as the "
+                                             "number of models")
 
                 for i, xx in enumerate(x):
                     if xx is None:
@@ -491,11 +481,11 @@ class MUArch:
                         xx = xx.reshape(-1, 1)
                     x[i] = xx
         else:
-            x = [None] * self.__n
+            x = [None] * len(self)
 
         # Format custom distribution
         if custom_dist is not None:
-            horizon = max(m.simulation_horizon_required(nobs, burn) for m in self)
+            horizon = max(m.simulation_horizon(nobs, burn) for m in self)
             if isinstance(reps, int):  # for monte carlo
                 size = horizon, reps
             else:
@@ -510,8 +500,8 @@ class MUArch:
                 custom_dist = custom_dist.reshape(1, -1)
 
             dim = custom_dist.shape[-1]
-            assert dim == self.__n, (f"expected generator to return array with {self.__n} vectors in the last axis "
-                                     f"(of shape) but got {dim}")
+            assert dim == len(self), (f"expected generator to return array with {len(self)} vectors in the last axis "
+                                      f"(of shape) but got {dim}")
 
         return initial_value, initial_value_vol, x, custom_dist
 
@@ -521,11 +511,11 @@ class MUArch:
         return header + models
 
     def __getitem__(self, i: int):
-        return self.__models[i]
+        return self._models[i]
 
     def __setitem__(self, i: int, model: UArch):
         assert isinstance(model, UArch), 'only UArch models are allowed to be set as a component of the MUArch object'
-        self.__models[i] = model
+        self._models[i] = model
 
     def __repr__(self):
         return self.__str__() + f', {hex(id(self))}'
@@ -536,4 +526,4 @@ class MUArch:
         return txt
 
     def __len__(self):
-        return self.__n
+        return len(self._models)

@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Collection
 
 from statsmodels.iolib.summary import Summary as S
 
@@ -76,7 +76,7 @@ class Summary(S):
 
 
 class SummaryList:
-    def __init__(self, summaries: Iterable[Summary] = ()):
+    def __init__(self, summaries: Collection[Summary] = ()):
         self._summaries = list(summaries)
 
     @staticmethod
@@ -106,7 +106,7 @@ class SummaryList:
         self._assert_is_summary(smry)
         self._summaries.append(smry)
 
-    def extend(self, summaries: Iterable[Summary]):
+    def extend(self, summaries: Collection[Summary]):
         for s in summaries:
             self._assert_is_summary(s)
         self._summaries.extend(summaries)

@@ -4,6 +4,7 @@ import pytest
 
 from muarch import MUArch, UArch
 from muarch.datasets import load_etf
+from muarch.exceptions import InvalidModelError
 from muarch.summary import SummaryList
 
 
@@ -23,12 +24,12 @@ def model(returns):
     (3, None),
     ([UArch(), UArch(), UArch()], None),
     ([], AssertionError),
-    ([UArch(), 213], AssertionError),
+    ([UArch(), 213], InvalidModelError),
     (UArch(), TypeError)
 ])
 def test_mu_specs_correctly(n, err):
     if err is None:
-        MUArch(3)
+        MUArch(n)
     else:
         with pytest.raises(err):
             MUArch(n)

@@ -1,4 +1,4 @@
-from typing import Sized
+from typing import Collection
 
 import numpy as np
 import pytest
@@ -18,7 +18,7 @@ X_SIM = [np.random.normal(size=(HORIZON + BURN, 1)), None, None]
 
 
 def random(size):
-    size = (*tuple(size), N) if isinstance(size, Sized) else (size, N)
+    size = (*tuple(size), N) if isinstance(size, Collection) else (size, N)
     return np.random.uniform(size=size)
 
 
