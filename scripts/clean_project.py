@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
 root: Path = Path(__file__).parent.parent
 

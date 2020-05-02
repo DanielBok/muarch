@@ -24,7 +24,7 @@ ext:
 	python setup.py build_ext --inplace
 
 linux-wheel:
-	docker run --rm -it -v $(CURDIR):/muarch danielbok/manylinux1_x86_64 /muarch/scripts/linux.sh
+	docker run --rm -it -v $(CURDIR):/muarch danielbok/manylinux1 /muarch/scripts/linux.sh
 
 test:
 	python -m pytest tests/
