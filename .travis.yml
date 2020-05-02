@@ -33,9 +33,9 @@ matrix:
       env:
         - PYTHON: "3.7"
     - python: "3.8"
-        os: osx
-        env:
-          - PYTHON: "3.8"
+      os: osx
+      env:
+        - PYTHON: "3.8"
     - python: "3.8"
       os: linux
       dist: xenial
