@@ -3,6 +3,7 @@ include README.md
 include setup.py
 include versioneer.py
 include muarch/_version.py
+include LICENSE
 
 graft muarch
 
