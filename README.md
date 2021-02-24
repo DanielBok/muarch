@@ -3,8 +3,7 @@ MUArch
 
 ###### Continuous Integration
 
-[![Build Status](https://travis-ci.com/DanielBok/muarch.svg?branch=master)](https://travis-ci.com/DanielBok/muarch)
-[![Build status](https://ci.appveyor.com/api/projects/status/i6wylcc8syvdbkih?svg=true)](https://ci.appveyor.com/project/DanielBok/muarch)
+![Build](https://github.com/danielbok/muarch/actions/workflows/test-build-deploy.yml/badge.svg)
 
 ###### Documentation
 
