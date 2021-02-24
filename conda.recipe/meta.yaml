@@ -22,7 +22,7 @@ requirements:
     - numpy >=1.14
   run:
     - python
-    - arch-py >=4.7
+    - arch-py >=4.15,<4.16
     - copulae >=0.4
     - numpy >=1.15
     - scipy >=1.1

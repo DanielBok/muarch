@@ -1,5 +1,4 @@
 import os
-
 from setuptools import Extension, find_packages, setup
 
 import versioneer
@@ -72,12 +71,12 @@ def build_ext_modules():
 
 
 install_requires = [
-    'arch >=4.7',
-    'copulae >=0.4.0',
+    'arch >=4.15,<4.16',
+    'copulae >=0.7',
     'numpy >=1.15',
+    'pandas >=1',
     'scipy >=1.1',
     'setuptools >=40.8',
-    'pandas >=0.23'
 ]
 
 setup(
